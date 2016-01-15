@@ -1,0 +1,193 @@
+---
+layout: post
+status: publish
+published: true
+title: LVS-DR简易测试实验
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 899
+wordpress_url: http://ninjacn.com/?p=899
+date: '2010-03-04 14:22:30 +0800'
+date_gmt: '2010-03-04 06:22:30 +0800'
+categories:
+- Server
+tags:
+- lvs
+- keepalived
+- lvs_dr
+comments:
+- id: 320
+  author: seabee
+  author_email: seabee@21cn.com
+  author_url: ''
+  date: '2011-01-24 01:50:42 +0800'
+  date_gmt: '2011-01-23 17:50:42 +0800'
+  content: ":sad: 请问是不是real server 一定要把VIP的网卡绑在lo上？为什么呢？"
+- id: 321
+  author: ming
+  author_email: x@ninjacn.com
+  author_url: ''
+  date: '2011-01-24 13:22:19 +0800'
+  date_gmt: '2011-01-24 05:22:19 +0800'
+  content: "<a href=\"#comment-320\" rel=\"nofollow\">@seabee <&#47;a> \r\n没有明确非要绑定在lo接口上，不过建议还是绑定在lo"
+---
+<p>结构图如下：</p>
+<p><a href="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;03&#47;linuxnotes-lvs_dr.png"><img class="alignnone size-full wp-image-900" title="linuxnotes-lvs_dr" src="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;03&#47;linuxnotes-lvs_dr.png" alt="linuxnotes-lvs_dr" width="584" height="330" &#47;><&#47;a></p>
+<p>环境：OS:CentOS 5.3</p>
+<p>调度器LVS：lb-192.168.1.8</p>
+<p>真实服务器1：node1-192.168.1.10</p>
+<p>真实服务器2：node2-192.168.1.11</p>
+<p>网关（路由器）：192.168.1.1</p>
+<p>ipvsadm安装不讲了，请参考<a href="http:&#47;&#47;ninjacn.com&#47;?p=884">http:&#47;&#47;ninjacn.com&#47;?p=884<&#47;a></p>
+<p>我直接贴配置，这个模式最关键的地方是realserver的arp问题。</p>
+<p>1，调度器（lb）配置如下：</p>
+<p>网卡信息：<br />
+[cc lang="bash"][root@lb ~]# ifconfig<br />
+eth0      Link encap:Ethernet  HWaddr 08:00:27:B3:6B:9B<br />
+inet addr:192.168.1.9  Bcast:192.168.1.255  Mask:255.255.255.0<br />
+inet6 addr: fe80::a00:27ff:feb3:6b9b&#47;64 Scope:Link<br />
+UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1<br />
+RX packets:92264 errors:0 dropped:0 overruns:0 frame:0<br />
+TX packets:59224 errors:0 dropped:0 overruns:0 carrier:0<br />
+collisions:0 txqueuelen:1000<br />
+RX bytes:10432857 (9.9 MiB)  TX bytes:5614477 (5.3 MiB)<br />
+Interrupt:10 Base address:0xd020</p>
+<p>eth0:0    Link encap:Ethernet  HWaddr 08:00:27:B3:6B:9B<br />
+inet addr:192.168.1.8  Bcast:192.168.1.255  Mask:255.255.255.0<br />
+UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1<br />
+Interrupt:10 Base address:0xd020</p>
+<p>lo        Link encap:Local Loopback<br />
+inet addr:127.0.0.1  Mask:255.0.0.0<br />
+inet6 addr: ::1&#47;128 Scope:Host<br />
+UP LOOPBACK RUNNING  MTU:16436  Metric:1<br />
+RX packets:148 errors:0 dropped:0 overruns:0 frame:0<br />
+TX packets:148 errors:0 dropped:0 overruns:0 carrier:0<br />
+collisions:0 txqueuelen:0<br />
+RX bytes:19076 (18.6 KiB)  TX bytes:19076 (18.6 KiB)[&#47;cc]<br />
+启动脚本如下：<br />
+[cc lang="bash"]<br />
+#!&#47;bin&#47;bash<br />
+#echo 1 > &#47;proc&#47;sys&#47;net&#47;ipv4&#47;ip_forward<br />
+LVSADM='&#47;sbin&#47;ipvsadm'<br />
+$LVSADM -C<br />
+$LVSADM -A -t 192.168.1.8:80 -s rr<br />
+$LVSADM -a -t 192.168.1.8:80 -r 192.168.1.10:80 -g<br />
+$LVSADM -a -t 192.168.1.8:80 -r 192.168.1.11:80 -g<br />
+[&#47;cc]<br />
+很简单，就是开启了转发和ipvsadm命令</p>
+<p>2，下面贴一下realserver的配置，两台都一样<br />
+a,首先新建一个网卡配置lo:0,将lo配置文件复制一份就可以了（&#47;etc&#47;sysconfig&#47;network-scripts&#47;ifcfg-lo）<br />
+修改信息如下：<br />
+[cc lang="bash"]<br />
+[root@node1 ~]# cat &#47;etc&#47;sysconfig&#47;network-scripts&#47;ifcfg-lo:0<br />
+DEVICE=lo:0<br />
+IPADDR=192.168.1.8<br />
+NETMASK=255.255.255.255<br />
+#NETWORK=192.168.1.0<br />
+# If you're having problems with gated making 127.0.0.0&#47;8 a martian,<br />
+# you can change this to something else (255.255.255.255, for example)<br />
+#BROADCAST=127.255.255.255<br />
+#NAME=loopback<br />
+BOOTPROTO=none<br />
+TYPE=Ethernet<br />
+ONPARENT=yes[&#47;cc]<br />
+启动lo:0<br />
+[cc lang="bash"]ifup lo:0[&#47;cc]<br />
+网卡信息如下：<br />
+[cc lang="bash"][root@node1 ~]# ifconfig<br />
+eth0      Link encap:Ethernet  HWaddr 08:00:27:C5:5B:03<br />
+inet addr:192.168.1.10  Bcast:192.168.1.255  Mask:255.255.255.0<br />
+inet6 addr: fe80::a00:27ff:fec5:5b03&#47;64 Scope:Link<br />
+UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1<br />
+RX packets:39165 errors:13 dropped:0 overruns:0 frame:0<br />
+TX packets:13346 errors:0 dropped:0 overruns:0 carrier:0<br />
+collisions:0 txqueuelen:1000<br />
+RX bytes:4457299 (4.2 MiB)  TX bytes:1185984 (1.1 MiB)<br />
+Interrupt:10 Base address:0xd020</p>
+<p>lo        Link encap:Local Loopback<br />
+inet addr:127.0.0.1  Mask:255.0.0.0<br />
+inet6 addr: ::1&#47;128 Scope:Host<br />
+UP LOOPBACK RUNNING  MTU:16436  Metric:1<br />
+RX packets:95 errors:0 dropped:0 overruns:0 frame:0<br />
+TX packets:95 errors:0 dropped:0 overruns:0 carrier:0<br />
+collisions:0 txqueuelen:0<br />
+RX bytes:12563 (12.2 KiB)  TX bytes:12563 (12.2 KiB)</p>
+<p>lo:0      Link encap:Local Loopback<br />
+inet addr:192.168.1.8  Mask:255.255.255.255<br />
+UP LOOPBACK RUNNING  MTU:16436  Metric:1<br />
+[&#47;cc]<br />
+这样便在192.168.1.10这台realserver的回环接口上配置了IP-192.168.1.8，这时在同网段的PC可以PING通192.168.1.8.下来要最的就是关闭ARP<br />
+b,关闭arp脚本如下：<br />
+[cc lang="bash"]<br />
+#!&#47;bin&#47;bash<br />
+echo "1" >&#47;proc&#47;sys&#47;net&#47;ipv4&#47;conf&#47;lo&#47;arp_ignore<br />
+echo "2" >&#47;proc&#47;sys&#47;net&#47;ipv4&#47;conf&#47;lo&#47;arp_announce<br />
+echo "1" >&#47;proc&#47;sys&#47;net&#47;ipv4&#47;conf&#47;all&#47;arp_ignore<br />
+echo "2" >&#47;proc&#47;sys&#47;net&#47;ipv4&#47;conf&#47;all&#47;arp_announce[&#47;cc]<br />
+现在，同网段PC应该PING不通192.168.1.8，当然这得在调度器上先关闭eth0:0接口（192.168.1.8绑定在eth0:0上，非eth0）.如果还能PING通，请在该机上执行arp -d 192.168.1.8再进行测试，直到PING不通为止。</p>
+<p>配置基本上就这样，很简单，附图如下：<br />
+<a href="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;03&#47;lvs_dr1.png"><img class="alignnone size-full wp-image-901" title="lvs_dr1" src="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;03&#47;lvs_dr1.png" alt="lvs_dr1" width="424" height="157" &#47;><&#47;a></p>
+<p><a href="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;03&#47;lvs_dr2.png"><img class="alignnone size-full wp-image-902" title="lvs_dr2" src="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;03&#47;lvs_dr2.png" alt="lvs_dr2" width="394" height="163" &#47;><&#47;a></p>
+<p>顺便贴下keepalived的配置，它我主要用了检测realserver是否可用<br />
+[cc lang="bash"]<br />
+[root@lb keepalived]# cat keepalived.conf<br />
+! Configuration File for keepalived</p>
+<p>global_defs {<br />
+notification_email {<br />
+acassen@firewall.loc<br />
+}<br />
+notification_email_from Alexandre.Cassen@firewall.loc<br />
+smtp_server 192.168.200.1<br />
+smtp_connect_timeout 30<br />
+router_id LVS_DEVEL<br />
+}</p>
+<p>virtual_server 192.168.1.8 80 {<br />
+delay_loop 6<br />
+lb_algo rr<br />
+lb_kind DR<br />
+nat_mask 255.255.255.0<br />
+persistence_timeout 10<br />
+protocol TCP</p>
+<p>real_server 192.168.1.10 80 {<br />
+weight 1<br />
+HTTP_GET {<br />
+url {<br />
+path &#47;index.html<br />
+digest 4b091b7d84daab28864e5905cd3ed821<br />
+}<br />
+connect_port 80<br />
+connect_timeout 3<br />
+}<br />
+}</p>
+<p>real_server 192.168.1.11 80 {<br />
+weight 1<br />
+HTTP_GET {<br />
+url {<br />
+path &#47;index.html<br />
+digest 9e60b98421b874661bdc7260aa1d6206<br />
+}<br />
+connect_port 80<br />
+connect_timeout 3<br />
+}<br />
+}</p>
+<p>}[&#47;cc]<br />
+启动keepalived<br />
+[cc lang="bash"]&#47;etc&#47;init.d&#47;keepalived start[&#47;cc]<br />
+log如下：<br />
+Mar  4 14:45:15 lb Keepalived_vrrp: Opening file '&#47;etc&#47;keepalived&#47;keepalived.conf'.<br />
+Mar  4 14:45:15 lb Keepalived_vrrp: Configuration is using : 32923 Bytes<br />
+Mar  4 14:45:15 lb Keepalived_vrrp: Using LinkWatch kernel netlink reflector...<br />
+Mar  4 14:45:15 lb Keepalived: Starting VRRP child process, pid=29955<br />
+Mar  4 14:45:52 lb Keepalived_healthcheckers: Error connecting server [192.168.1.11:80].<br />
+Mar  4 14:45:52 lb Keepalived_healthcheckers: Removing service [192.168.1.11:80] from VS [192.168.1.8:80]<br />
+Mar  4 14:45:52 lb Keepalived_healthcheckers: Remote SMTP server [192.168.200.1:25] connected.<br />
+Mar  4 14:46:13 lb Keepalived_healthcheckers: MD5 digest success to [192.168.1.11:80] url(1).<br />
+Mar  4 14:46:19 lb Keepalived_healthcheckers: Remote Web server [192.168.1.11:80] succeed on service.<br />
+Mar  4 14:46:19 lb Keepalived_healthcheckers: Adding service [192.168.1.11:80] to VS [192.168.1.8:80]<br />
+Mar  4 14:46:19 lb Keepalived_healthcheckers: Remote SMTP server [192.168.200.1:25] connected.<br />
+Mar  4 14:46:22 lb Keepalived_healthcheckers: Timeout reading data to remote SMTP server [192.168.200.1:25].</p>

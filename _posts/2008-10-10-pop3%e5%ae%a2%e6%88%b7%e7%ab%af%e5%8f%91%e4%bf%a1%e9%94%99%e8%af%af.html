@@ -1,0 +1,61 @@
+---
+layout: post
+status: publish
+published: true
+title: pop3客户端发信错误
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+excerpt: |-
+  今天测试了courier-imap,安装好以后,运行,只开户了POP3.在客户端用FOXMAIL收信,收正常,但发信不正常..
+
+  错误信息:warning: SASL authentication failure: cannot connect to Courier authdaemond: Permission denied
+
+  我将MAIN.CF文件里面验证SASL属性取消后,可以正常收发信,但这样的话,客户端不通过验证就可以发信,最后才发现SMTP不能对COURIER-AUTHLIB的文件信息正常读取,,
+wordpress_id: 64
+wordpress_url: http://ninjacn.com/?p=64
+date: '2008-10-10 14:02:34 +0800'
+date_gmt: '2008-10-10 06:02:34 +0800'
+categories:
+- Server
+tags:
+- pop3
+- Server
+comments:
+- id: 4
+  author: admin
+  author_email: 345059906@qq.com
+  author_url: ''
+  date: '2008-10-10 14:36:40 +0800'
+  date_gmt: '2008-10-10 06:36:40 +0800'
+  content: ":mrgreen:  :mrgreen:  :mrgreen:"
+- id: 5
+  author: wokao
+  author_email: 123456@qq.com
+  author_url: ''
+  date: '2008-10-10 15:04:43 +0800'
+  date_gmt: '2008-10-10 07:04:43 +0800'
+  content: ":twisted:  :twisted:"
+- id: 6
+  author: wokao
+  author_email: 123456@qq.com
+  author_url: ''
+  date: '2008-10-10 15:06:22 +0800'
+  date_gmt: '2008-10-10 07:06:22 +0800'
+  content: ":lol:"
+---
+<p>今天测试了courier-imap,安装好以后,运行,只开户了POP3.在客户端用FOXMAIL收信,收正常,但发信不正常..</p>
+<p>错误信息:warning: SASL authentication failure: cannot connect to Courier authdaemond: Permission denied</p>
+<p>我将MAIN.CF文件里面验证SASL属性取消后,可以正常收发信,但这样的话,客户端不通过验证就可以发信,最后才发现SMTP不能对COURIER-AUTHLIB的文件信息正常读取,,<a id="more"></a><a id="more-64"></a></p>
+<p>执行chmod o+r -R &#47;usr&#47;local&#47;var&#47;spool&#47;authdaemon</p>
+<p>重新启动COURIER-AUTHLIB服务,还是不行</p>
+<p>又加了执行权限,</p>
+<p>执行chmod o+x -R &#47;usr&#47;local&#47;var&#47;spool&#47;authdaemon</p>
+<p>一切正常&hellip;..</p>
+<p>网上搜集类似错误:</p>
+<p>warning: SASL authentication failure: cannot connect to Courier authdaemond: No such file or directory<br />
+检查&#47;usr&#47;local&#47;lib&#47;sasl2&#47;smtpd.conf，看看是否有多写一个空格，一般空格很难直观的发现</p>

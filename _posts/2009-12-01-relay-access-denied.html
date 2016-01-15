@@ -1,0 +1,28 @@
+---
+layout: post
+status: publish
+published: true
+title: postfix:Relay access denied
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 766
+wordpress_url: http://ninjacn.com/?p=766
+date: '2009-12-01 15:08:17 +0800'
+date_gmt: '2009-12-01 07:08:17 +0800'
+categories:
+- Server
+tags:
+- postfix
+comments: []
+---
+<p>邮件服务器出现以下错误：<br />
+Dec  1 14:27:47 mx01 postfix&#47;smtpd[3780]: connect from mx01.eben.cn[127.0.0.1]<br />
+Dec  1 14:27:47 mx01 postfix&#47;smtpd[3780]: NOQUEUE: reject: RCPT from mx01.eben.cn[127.0.0.1]: 554 5.7.1 <y_pengming@163.com>: Relay access denied; from=<admin@eben.cn> to=<y_pengming@163.com> proto=ESMTP helo=<localhost.localdomain><br />
+Dec  1 14:27:47 mx01 postfix&#47;smtpd[3780]: lost connection after RCPT from mx01.eben.cn[127.0.0.1]<br />
+Dec  1 14:27:47 mx01 postfix&#47;smtpd[3780]: disconnect from mx01.eben.cn[127.0.0.1<br />
+先前测试了都正常，加了几个其它模板就出现这个错误。我又禁用了安装的这些模块，但还是出现这个错误，查看main.cf文件发现mynetwork=127.0.0.0，结果修改成127.0.0.1&#47;8后全部正常了，有点不解，之前也是127.0.0.0啊，也可以正常运行。</p>

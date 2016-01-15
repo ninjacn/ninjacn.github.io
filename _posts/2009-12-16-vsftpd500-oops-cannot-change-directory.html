@@ -1,0 +1,35 @@
+---
+layout: post
+status: publish
+published: true
+title: 'vsftpd:500 OOPS: cannot change directory'
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 823
+wordpress_url: http://ninjacn.com/?p=823
+date: '2009-12-16 11:49:16 +0800'
+date_gmt: '2009-12-16 03:49:16 +0800'
+categories:
+- Server
+tags:
+- vsftpd
+- selinux
+- '500'
+comments: []
+---
+<p>今天遇到这个问题，个别用户无法登录FTP,但在日志里面已经显示正常登录，VSFTPD报错：500 OOPS: cannot change directory</p>
+<p>这个问题网上很多解决方案是SELINUX做鬼，但是我的机器SELINUX是关闭的，也出现这个错误，最终找到办法得以解决，总结一下：<br />
+1，selinux<br />
+[cc lang="bash"]<br />
+setsebool ftpd_disable_trans 1<br />
+service vsftpd restart<br />
+[&#47;cc]<br />
+或者直接关闭selinux，&#47;etc&#47;selinux&#47;config<br />
+2,目录权限问题<br />
+比如用户a,目录&#47;ftphome&#47;a<br />
+那么&#47;ftphome这个目录属主和组都有读和执行权限，否则也会报500错误。这个也就是部分用户正常，而部分用户不能登录的原因。</p>

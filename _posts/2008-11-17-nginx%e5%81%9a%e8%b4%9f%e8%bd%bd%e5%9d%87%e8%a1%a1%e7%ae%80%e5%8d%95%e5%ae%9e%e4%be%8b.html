@@ -1,0 +1,94 @@
+---
+layout: post
+status: publish
+published: true
+title: nginx做负载均衡(简单实例)
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+excerpt: |-
+  我用两台机器做测试，第一台只做代理10.10.10.10,第二台（10.10.10.20）算做后端吧。,我在第一台机器上配置如下
+  upstream backend {
+  server 10.10.10.20:8888;
+  }
+  server {
+  listen 80
+  server_name www.test.com;
+  location &#47;{
+  root &#47;www;
+  porxy_pass http:&#47;&#47;backend;
+  }
+  }
+wordpress_id: 206
+wordpress_url: http://ninjacn.com/?p=206
+date: '2008-11-17 23:31:28 +0800'
+date_gmt: '2008-11-17 15:31:28 +0800'
+categories:
+- Server
+tags:
+- nginx
+- "实例"
+- "负载均衡"
+comments:
+- id: 17
+  author: Sesso
+  author_email: Sesso1181@yahoo.com
+  author_url: http://homerize.com/draw/sesso.php
+  date: '2009-01-22 03:16:42 +0800'
+  date_gmt: '2009-01-21 19:16:42 +0800'
+  content: Great site.
+- id: 18
+  author: Lesbiche
+  author_email: Lesbiche3017@yahoo.com
+  author_url: http://themexicandream.com/vamonos/lesbiche.php
+  date: '2009-01-26 21:19:28 +0800'
+  date_gmt: '2009-01-26 13:19:28 +0800'
+  content: Nice site you have!
+- id: 19
+  author: "世界地图"
+  author_email: map@93map.com
+  author_url: http://93map.com
+  date: '2009-05-15 23:44:24 +0800'
+  date_gmt: '2009-05-15 15:44:24 +0800'
+  content: "写得真详细"
+---
+<p>我用两台机器做测试，第一台只做代理10.10.10.10,第二台（10.10.10.20）算做后端吧。,我在第一台机器上配置如下<br />
+upstream backend {<br />
+server 10.10.10.20:8888;<br />
+}<br />
+server {<br />
+listen 80<br />
+server_name www.test.com;<br />
+location &#47;{<br />
+root &#47;www;<br />
+porxy_pass http:&#47;&#47;backend;<br />
+}<br />
+}<a id="more"></a><a id="more-206"></a><br />
+第二台配置我就不写了，单独可能正常服务的。我测试一个论坛程序（PHP+MYSQL）,程序是放在10.10.10.10机器上，用NFS共享出来，可以读写。10.10.10.20是可以正常访问的。现在的问题是，我单独打开http:&#47;&#47;10.10.10.20:8888是可以正常工作的，比如发贴等。但是如果访问http:&#47;&#47;www.test.com(解析到10.10.10.10上的)，就会出现不能发贴等，凡正感觉涉及到动态页面请求的都会提示错误，我一直感觉是会话的问题。<br />
+提示错误<br />
+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;<br />
+<em>您的请求来路不正确或验证字串不符，无法提交。如果您安装了某种默认屏蔽来路信息的个人防火墙软件(如 Norton Internet Security)，请设置其不要禁止来路信息后再试。<&#47;em>&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;<br />
+PHP会话是通过MEMCACHE来保持的，我在10.10.10.10上面安装了MEMCACHE,监听在11211上面。在10.10.10.20（WEB）上面安装MEMCACHE--PHP扩展插件用于连接MEMCACHE，下载到PHP.NET下载好插件，memcache-xx.tar.gz,注意memcache插件文件名与memcache文件名很一样，只是版本不同而已。<br />
+----------------------------<br />
+安装memcache扩展插件<br />
+tar zxvf memcache-xx.tar.gz<br />
+cd memcache-xx<br />
+&#47;opt&#47;php&#47;bin&#47;phpize(插件安装工具)<br />
+.&#47;configure --prefix=&#47;opt&#47;memcahe-ext<br />
+make &amp; make install<br />
+----------------------------<br />
+修改PHP.INI<br />
+--------------------------------<br />
+添加扩展extension=memcache.so<br />
+修改扩展安装目录extension_dir = "&#47;opt&#47;php&#47;lib&#47;php&#47;extensions&#47;no-debug-non-zts-20060613&#47;"<br />
+session.save_handler = memcache<br />
+session.save_path = tcp:&#47;&#47;10.10.10.10:11211<br />
+以上信息可以通过PHPINFO()显示出来检验一下<br />
+-----------------------------------------------<br />
+其它我以上所做的过程都没有错，在NGINX配置没有忘记了HOST参数<br />
+proxy_set_header Host $host;(这行很重要)<br />
+通过以上步骤基本已经完成了，只是测试一下这个功能，如果想动静分离的话修改NGINX配置即可！！！</p>

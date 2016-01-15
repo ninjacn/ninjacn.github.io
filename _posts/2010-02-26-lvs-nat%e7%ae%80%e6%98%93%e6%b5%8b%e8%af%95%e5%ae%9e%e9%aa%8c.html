@@ -1,0 +1,77 @@
+---
+layout: post
+status: publish
+published: true
+title: LVS-NAT简易测试实验
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 884
+wordpress_url: http://ninjacn.com/?p=884
+date: '2010-02-26 15:44:56 +0800'
+date_gmt: '2010-02-26 07:44:56 +0800'
+categories:
+- Server
+tags:
+- linux
+- lvs
+- nat
+- lvs-nat
+comments: []
+---
+<p>LVS-NAT简易环境搭建，结构图如下：<br />
+<a href="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;02&#47;lvs-nat.png"><img class="alignnone size-full wp-image-885" title="lvs-nat" src="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;02&#47;lvs-nat.png" alt="lvs-nat" width="566" height="246" &#47;><&#47;a></p>
+<p>操作系统：centos 5.3<br />
+A,调度器（主机名：lb）,双网卡。<br />
+外网卡（eth0）IP:192.168.1.9<br />
+内网卡(eth1):IP:10.10.10.9<br />
+B,真实服务器A（主机名：node1）,双网卡（<span style="color: #ff0000;">注意，最好只用单网卡，不然调试会出问题，我是为了方便远程。<&#47;span>）<br />
+外网卡（eth0）IP:192.168.1.10<br />
+内网卡(eth1):IP:10.10.10.10<br />
+C,真实服务器B（主机名：node1_0）,双网卡（<span style="color: #ff0000;">注意，最好只用单网卡，不然调试会出问题，我是为了方便远程。<&#47;span>）<br />
+外网卡（eth0）IP:192.168.1.11<br />
+内网卡(eth1):IP:10.10.10.11</p>
+<p>安装：<br />
+1， 调度器上安装IPVS<br />
+ipvs编译安装:<br />
+下载系统对应版本内核，因为安装IPVS是需要一些头文件支持。目录&#47;usr&#47;src&#47;linux<br />
+[cc lang="bash"][root@lb ~]# cd &#47;root<br />
+[root@lb ~]# mv linux-2.6.18.tar.gz &#47;usr&#47;src&#47;<br />
+[root@lb ~]# cd &#47;usr&#47;src&#47;<br />
+[root@lb src]# tar xzvf linux-2.6.18.tar.gz<br />
+[root@lb src]# ln -s linux-2.6.18 linux<br />
+[root@lb src]# ls<br />
+kernels linux linux-2.6.18 linux-2.6.18.tar.gz redhat[&#47;cc]</p>
+<p>接下来编译IPVS：<br />
+查看目前系统支持的IPVS模块<br />
+[cc lang="bash"][root@lb ~]# ls &#47;lib&#47;modules&#47;2.6.18-128.el5&#47;kernel&#47;net&#47;ipv4&#47;ipvs&#47;<br />
+ip_vs_dh.ko ip_vs.ko ip_vs_lblcr.ko ip_vs_nq.ko ip_vs_sed.ko ip_vs_wlc.ko<br />
+ip_vs_ftp.ko ip_vs_lblc.ko ip_vs_lc.ko ip_vs_rr.ko ip_vs_sh.ko ip_vs_wrr.ko<br />
+[root@lb ~]# wget http:&#47;&#47;www.linuxvirtualserver.org&#47;software&#47;kernel-2.6&#47;ipvsadm-1.24.tar.gz<br />
+[root@lb ~]# tar xzvf ipvsadm-1.24.tar.gz<br />
+[root@lb ~]# cd ipvsadm-1.24<br />
+[root@lb ipvsadm-1.24]# make<br />
+[root@lb ipvsadm-1.24]# make install[&#47;cc]</p>
+<p>至些，IPVS安装完成。可以通过man ipvsadm查看帮助</p>
+<p>2， 编写IPVS启动脚本：<br />
+[cc lang="bash"]#!&#47;bin&#47;bash<br />
+echo 1 > &#47;proc&#47;sys&#47;net&#47;ipv4&#47;ip_forward<br />
+IPVSADM='&#47;sbin&#47;ipvsadm'<br />
+$ IPVSADM -C<br />
+$ IPVSADM -A -t 192.168.1.9:80 -s rr<br />
+$ IPVSADM -a -t 192.168.1.9:80 -r 10.10.10.10:80 -m -w 1<br />
+$ IPVSADM -a -t 192.168.1.9:80 -r 10.10.10.11:80 -m -w 1[&#47;cc]</p>
+<p>3， 真实服务器安装（一样）<br />
+3.1,启动HTTPD服务用于测试WEB<br />
+Service httpd start<br />
+3.2,将网关指向调度器内网卡（10.10.10.9）,让所有数据都走这个网关。<br />
+<span style="color: #ff0000;">3.3,这步仅供参考，因为我的环境有点特殊。真实服务器上双网卡，有个路由192.168.1.0这个网段数据由eth0出去，这样的话测试会出问题。为了避免这个问题，在测试前将所有真实服务器的eth0网卡禁用（我主要是为了远程操作方便）。<&#47;span></p>
+<p>测试截图如下：<br />
+<a href="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;02&#47;10.png"><img class="alignnone size-full wp-image-886" title="10" src="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;02&#47;10.png" alt="10" width="517" height="197" &#47;><&#47;a><br />
+上面这张图片后端服务器是10.10.10.10<br />
+<a href="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;02&#47;11.png"><img class="alignnone size-full wp-image-887" title="11" src="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;02&#47;11.png" alt="11" width="513" height="307" &#47;><&#47;a><br />
+上面这张图片后端服务器是10.10.10.11</p>

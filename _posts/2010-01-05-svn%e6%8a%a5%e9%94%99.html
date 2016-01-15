@@ -1,0 +1,28 @@
+---
+layout: post
+status: publish
+published: true
+title: SVN报错
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 842
+wordpress_url: http://ninjacn.com/?p=842
+date: '2010-01-05 18:44:58 +0800'
+date_gmt: '2010-01-05 10:44:58 +0800'
+categories:
+- System
+tags:
+- svn
+comments: []
+---
+<p>[cc lang="bash"][root@sa 110]# svn commit<br />
+svn: Commit failed (details follow):<br />
+svn: Could not use external editor to fetch log message; consider setting the $SVN_EDITOR environment variable or using the --message (-m) or --file (-F) options<br />
+svn: None of the environment variables SVN_EDITOR, VISUAL or EDITOR is set, and no 'editor-cmd' run-time configuration option was found[&#47;cc]</p>
+<p>解决办法:svn commit -m 's'  etc<br />
+加-m参数，不能为空</p>

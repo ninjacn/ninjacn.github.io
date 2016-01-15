@@ -1,0 +1,69 @@
+---
+layout: post
+status: publish
+published: true
+title: "邮件退信提示及说明"
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+excerpt: |-
+  常见的错误回弹信内容
+
+  Try send out of range,no more information: 系统尝试发送邮件超过最大次数，邮件发送失败
+  505 Your domain has not DNS&#47;MX entries: 发送者邮件服务器IP地址没有对应的DNS或者MX记录
+  505 Your domain has not MX entries or DNS record error. more info please visit http:&#47;&#47;www.musemailsvr.com&#47;: 发送者邮件服务器IP地址和其HELO名不能对应
+  550 invalid address (#5.5.0) 无效的邮件地址(收件人地址可能不存在)
+  Invalid spool file 无效的邮件文件，邮件不符合国际标准
+wordpress_id: 490
+wordpress_url: http://ninjacn.com/?p=490
+date: '2009-05-23 20:28:39 +0800'
+date_gmt: '2009-05-23 12:28:39 +0800'
+categories:
+- Server
+tags:
+- mail
+- "说明"
+- "退信"
+- "邮件"
+comments: []
+---
+<p>常见的错误回弹信内容</p>
+<p>Try send out of range,no more information: 系统尝试发送邮件超过最大次数，邮件发送失败<br />
+505 Your domain has not DNS&#47;MX entries: 发送者邮件服务器IP地址没有对应的DNS或者MX记录<br />
+505 Your domain has not MX entries or DNS record error. more info please visit http:&#47;&#47;www.musemailsvr.com&#47;: 发送者邮件服务器IP地址和其HELO名不能对应<br />
+550 invalid address (#5.5.0) 无效的邮件地址(收件人地址可能不存在)<br />
+Invalid spool file 无效的邮件文件，邮件不符合国际标准<a id="more"></a><a id="more-490"></a><br />
+554 IP is Hangup, too much auth error,........ : 发件服务器的IP地址不被对方服务器接受<br />
+554 Hi [xxx.xxx.xxx.xxx], unresolvable address: <xxxx@xxx.xxx.xxx>,........ : 目标邮箱地址不存在<br />
+554 Please visit http:&#47;&#47;antispam.sina.com.cn&#47;denyip.php?IP=xxx.xxx.xxx.xxx (#5.7.1) : sina.com拒绝收取您的邮件，请访问 http:&#47;&#47;antispam.sina.com.cn&#47;denyip.php?IP=xxx.xxx.xxx.xxx 获得解决方案(或者您也可以参考 sina退信的解决办法 )<br />
+554 delivery error: dd This user doesn't have a yahoo.com account (xxxx@yahoo.com) [0] - mta113.mail.dcn.yahoo.com ,..... : yahoo.com邮件退信，提示指定的邮件不存在<br />
+550 abtpvvnu@263.net:user not exist : 目标邮箱地址不存在<br />
+550 This account is not allowed...xxx@xxx.com : 目标邮箱地址不被服务器接受，可能该地址不存在<br />
+550 Requested action not taken: mailbox unavailable : 目标邮箱地址不可用，可能该地址不存在<br />
+553 Sorry!This user does not exist in this system. : 目标邮箱地址不可用，该地址不存在<br />
+554 EMail from mailserver at xxx.xxx.xxx.xxx is refused. See http:&#47;&#47;spamblock.outblaze.com&#47;xxx.xxx.xxx.xxx . : 发件服务器的IP地址在收件服务器中不被许可和承认，请参考 http:spamblock.outblaze.com&#47;xxx.xxx.xxx.xxx，此种情况是您的发件服务器IP地址在outblaze.com的垃圾邮件地址列表中 (请参考怎么样在处理垃圾邮件地址列表)<br />
+550 5.2.1 <xxx@xxx.xxx>... Mailbox disabled for this recipient. : 目标邮箱地址被禁用，拒绝接收邮件<br />
+550 <jing825cn> is now disabled with MTA service. : 目标邮箱地址被禁用,一般是邮箱地址不正确或者不存在<br />
+553 sorry, that domain isn't in my list of allowed rcpthosts (#5.7.1) : 发件人的邮件域(邮件后缀)不在对方服务器允许的列表当中</p>
+<p>&middot;发到 sina.com 的邮件会被退回</p>
+<p>发到 sina 的邮件会被退回，并提示 remote server said: 553 Spam Mail http:&#47;&#47;mail.sina.com.cn&#47;FAQ.html 错误，怎么办？<br />
+1. 确认您邮件系统使用的域名是合法的，而不是随意填写的。<br />
+2. 确认您的邮件服务器使用的IP地址是固定的，而不是动态的IP地址。<br />
+3. 正确设置MuseMail Server 服务器管理器->系统设置->系统参数->基本参数->HELO&#47;EHLO 主机名。可用nslookup命令查找，YourDomain MX preference = 10， mail exchanger =后面的内容即为正确的HELO&#47;EHLO 主机名。<br />
+4. 如满足以上三点，发到 sina 还是被退回相同的信件，请和 sina 联系。联系方式如下<br />
+邮箱地址：antispam@staff.sina.com.cn 或 lanjiang@staff.sina.com.cn<br />
+联系电话：010-82624488 转 5602<br />
+也可以申请个 sina 或者 gmail的邮箱，在MuseMail Server服务器管理器 ->系统设置->系统参数->网关设置 中设置递送失败后启用网关递送，网关服务器: smtp.sina.com.cn 或者 pop.gmail.com ， 再添加输入您在 sina 或者gmail注册的用户名和密码。</p>
+<p>&middot;发到 tom.com 的邮件会被退回</p>
+<p>1.确认您邮件系统使用的域名是合法的，而不是随意填写的。<br />
+2.确认您的邮件服务器使用的IP地址是固定的，而不是动态的IP地址。<br />
+3.正确设置MuseMail Server->系统设置->SMTP设置->基本参数->HELO&#47;EHLO 主机名。可用nslookup命令查找，YourDomain MX preference = 10， mail exchanger =后面的内容即为正确的HELO&#47;EHLO 主机名。<br />
+4.如满足以上三点，发送到 TOM.COM 还是被退回相同的信件,请访问http:&#47;&#47;whitelist.mail.tom.com 申请加入到TOM.COM的白名单。</p>
+<p>&middot;收到退信错误提示为"554 5.7.1 Rejected xxx.xxx.xxx.xxx found in dnsbl.sorbs.net"，怎么办？</p>
+<p>这是因为收件人所在的邮件服务器使用RBL过滤垃圾邮件，而您的邮件服务器IP地址在RBL列表中，因此被拒绝了。一般此类的退信会包含一个连接，可以按网站上面的要求来申请把您的邮件服务器IP地址从列表中移除。</p>
+<p>也可以尝试使用中继服务器转发，例如：<br />
+可以申请个 sina 的邮箱，在MuseMail Server服务器管理器 ->系统设置->系统参数->网关设置 中设置递送失败后启用网关递送，网关服务器: smtp.sina.com.cn， 再输入您在 sina 注册的用户名和密码。</p>

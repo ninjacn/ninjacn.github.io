@@ -1,0 +1,45 @@
+---
+layout: post
+status: publish
+published: true
+title: ulimit使用简介
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 183
+wordpress_url: http://ninjacn.com/?p=183
+date: '2008-11-04 17:18:37 +0800'
+date_gmt: '2008-11-04 09:18:37 +0800'
+categories:
+- System
+tags:
+- linux
+- shell
+- ulimit
+comments: []
+---
+<p>ulimit使用简介<br />
+1,说明:<br />
+ulimit用于shell启动进程所占用的资源.<br />
+2,类别:<br />
+shell内建命令<br />
+3,语法格式:<br />
+ulimit [-acdfHlmnpsStvw] [size]</p>
+<p>4,参数介绍:</p>
+<p>-H 设置硬件资源限制.<br />
+-S 设置软件资源限制.<br />
+-a 显示当前所有的资源限制.<br />
+-c size:设置core文件的最大值.单位:blocks<br />
+-d size:设置数据段的最大值.单位:kbytes<br />
+-f size:设置创建文件的最大值.单位:blocks<br />
+-l size:设置在内存中锁定进程的最大值.单位:kbytes<br />
+-m size:设置可以使用的常驻内存的最大值.单位:kbytes<br />
+-n size:设置内核可以同时打开的文件描述符的最大值.单位:n<br />
+-p size:设置管道缓冲区的最大值.单位:kbytes<br />
+-s size:设置堆栈的最大值.单位:kbytes<br />
+-t size:设置CPU使用时间的最大上限.单位:seconds<br />
+-v size:设置虚拟内存的最大值.单位:kbytes 5,简单实例:</p>

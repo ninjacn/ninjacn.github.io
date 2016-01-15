@@ -1,0 +1,453 @@
+---
+layout: post
+status: publish
+published: true
+title: postfix+cyrus-sasl+courier-authlib+courier-imap+mysql+postfixadmin
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+excerpt: |-
+  <strong>1：添加postfix 用户<&#47;strong>
+  <p style="font-weight: bold; margin: 1em 1em 0px;">CODE:<&#47;p>
+
+  <div><code style="display: block; margin: 0px 1em 1em; font: 12px&#47;1.8em Courier, monospace; border: #ccc 1px solid; padding: 0.5em;">CREATE TABLE `admin` (
+  &nbsp;&nbsp;`username` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`password` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`created` datetime NOT NULL default '0000-00-00 00:00:00',
+  &nbsp;&nbsp;`modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  &nbsp;&nbsp;`active` tinyint(1) NOT NULL default '1',
+  &nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`username`)
+  ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Admins'；<&#47;code><&#47;div>
+  <code style="display: block; margin: 0px 1em 1em; font: 12px&#47;1.8em Courier, monospace; border: #ccc 1px solid; padding: 0.5em;">CREATE TABLE `alias` (
+  &nbsp;&nbsp;`address` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`goto` text NOT NULL,
+  &nbsp;&nbsp;`domain` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`created` datetime NOT NULL default '0000-00-00 00:00:00',
+  &nbsp;&nbsp;`modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  &nbsp;&nbsp;`active` tinyint(1) NOT NULL default '1',
+  &nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`address`)
+  ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Aliases'；
+
+  CREATE TABLE `config` (
+  &nbsp;&nbsp;`id` int(11) NOT NULL auto_increment,
+  &nbsp;&nbsp;`name` varchar(20) NOT NULL default '',
+  &nbsp;&nbsp;`value` varchar(20) NOT NULL default '',
+  &nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`id`),
+  &nbsp;&nbsp;UNIQUE KEY `name` (`name`)
+  ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COMMENT='PostfixAdmin settings'；
+
+  CREATE TABLE `domain` (
+  &nbsp;&nbsp;`domain` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`description` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL,
+  &nbsp;&nbsp;`aliases` int(10) NOT NULL default '0',
+  &nbsp;&nbsp;`mailboxes` int(10) NOT NULL default '0',
+  &nbsp;&nbsp;`maxquota` bigint(20) NOT NULL default '0',
+  &nbsp;&nbsp;`quota` bigint(20) NOT NULL default '0',
+  &nbsp;&nbsp;`transport` varchar(255) default NULL,
+  &nbsp;&nbsp;`backupmx` tinyint(1) NOT NULL default '0',
+  &nbsp;&nbsp;`created` datetime NOT NULL default '0000-00-00 00:00:00',
+  &nbsp;&nbsp;`modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  &nbsp;&nbsp;`active` tinyint(1) NOT NULL default '1',
+  &nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`domain`)
+  ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Domains'；
+
+  CREATE TABLE `domain_admins` (
+  &nbsp;&nbsp;`username` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`domain` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`created` datetime NOT NULL default '0000-00-00 00:00:00',
+  &nbsp;&nbsp;`active` tinyint(1) NOT NULL default '1',
+  &nbsp;&nbsp;KEY `username` (`username`)
+  ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Domain Admins'；
+
+  CREATE TABLE `fetchmail` (
+  &nbsp;&nbsp;`id` int(11) unsigned NOT NULL auto_increment,
+  &nbsp;&nbsp;`mailbox` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`src_server` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`src_auth` enum('password','kerberos_v5','kerberos','kerberos_v4','gssapi','cram-md5','otp','ntlm','msn','ssh','any') default NULL,
+  &nbsp;&nbsp;`src_user` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`src_password` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`src_folder` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`poll_time` int(11) unsigned NOT NULL default '10',
+  &nbsp;&nbsp;`fetchall` tinyint(1) unsigned NOT NULL default '0',
+  &nbsp;&nbsp;`keep` tinyint(1) unsigned NOT NULL default '0',
+  &nbsp;&nbsp;`protocol` enum('POP3','IMAP','POP2','ETRN','AUTO') default NULL,
+  &nbsp;&nbsp;`extra_options` text,
+  &nbsp;&nbsp;`returned_text` text,
+  &nbsp;&nbsp;`mda` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`date` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+  &nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`id`)
+  ) ENGINE=MyISAM DEFAULT CHARSET=latin1；
+
+  CREATE TABLE `log` (
+  &nbsp;&nbsp;`timestamp` datetime NOT NULL default '0000-00-00 00:00:00',
+  &nbsp;&nbsp;`username` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`domain` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`action` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`data` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;KEY `timestamp` (`timestamp`)
+  ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Log'；
+
+  CREATE TABLE `mailbox` (
+  &nbsp;&nbsp;`username` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`password` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`name` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL,
+  &nbsp;&nbsp;`maildir` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`quota` bigint(20) NOT NULL default '0',
+  &nbsp;&nbsp;`domain` varchar(255) NOT NULL default '',
+  &nbsp;&nbsp;`created` datetime NOT NULL default '0000-00-00 00:00:00',
+  &nbsp;&nbsp;`modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  &nbsp;&nbsp;`active` tinyint(1) NOT NULL default '1',
+  &nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`username`)
+  ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Mailboxes'；
+
+  CREATE TABLE `vacation` (
+  &nbsp;&nbsp;`email` varchar(255) NOT NULL,
+  &nbsp;&nbsp;`subject` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL,
+  &nbsp;&nbsp;`body` text character set utf8 collate utf8_unicode_ci NOT NULL,
+  &nbsp;&nbsp;`cache` text NOT NULL,
+  &nbsp;&nbsp;`domain` varchar(255) NOT NULL,
+  &nbsp;&nbsp;`created` datetime NOT NULL default '0000-00-00 00:00:00',
+  &nbsp;&nbsp;`active` tinyint(1) NOT NULL default '1',
+  &nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`email`),
+  &nbsp;&nbsp;KEY `email` (`email`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Vacation'；
+
+  CREATE TABLE `vacation_notification` (
+  &nbsp;&nbsp;`on_vacation` varchar(255) NOT NULL,
+  &nbsp;&nbsp;`notified` varchar(255) NOT NULL,
+  &nbsp;&nbsp;`notified_at` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  &nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`on_vacation`,`notified`),
+  &nbsp;&nbsp;CONSTRAINT `vacation_notification_pkey` FOREIGN KEY (`on_vacation`) REFERENCES `vacation` (`email`) ON DELETE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Vacation Notifications'；
+wordpress_id: 508
+wordpress_url: http://ninjacn.com/?p=508
+date: '2009-05-23 22:12:08 +0800'
+date_gmt: '2009-05-23 14:12:08 +0800'
+categories:
+- Server
+tags:
+- imap
+- mysql
+- postfix
+- sasl
+comments:
+- id: 69
+  author: rape games
+  author_email: karita@email.ua
+  author_url: http://www.proving-grounds.net/forum/showthread.php?t=263047
+  date: '2009-06-17 17:49:18 +0800'
+  date_gmt: '2009-06-17 09:49:18 +0800'
+  content: nice! i'm gonna make my own journal
+- id: 71
+  author: Mujeres Desnudas Argentinas
+  author_email: pufferycrossyy@gmail.com
+  author_url: http://foro.telehorta.es/viewtopic.php?f=2&amp;t=1601&amp;p=3001
+  date: '2009-07-02 08:53:05 +0800'
+  date_gmt: '2009-07-02 00:53:05 +0800'
+  content: any updates coming ?
+- id: 318
+  author: Eric
+  author_email: simplesun@yeah.net
+  author_url: http://blog.55uz.net
+  date: '2011-01-07 14:28:07 +0800'
+  date_gmt: '2011-01-07 06:28:07 +0800'
+  content: "能否帖一下版本信息？"
+---
+<p><strong>1：添加postfix 用户<&#47;strong></p>
+<p style="font-weight: bold; margin: 1em 1em 0px;">CODE:<&#47;p></p>
+<div><code style="display: block; margin: 0px 1em 1em; font: 12px&#47;1.8em Courier, monospace; border: #ccc 1px solid; padding: 0.5em;">CREATE TABLE `admin` (<br />
+&nbsp;&nbsp;`username` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`password` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`created` datetime NOT NULL default '0000-00-00 00:00:00',<br />
+&nbsp;&nbsp;`modified` datetime NOT NULL default '0000-00-00 00:00:00',<br />
+&nbsp;&nbsp;`active` tinyint(1) NOT NULL default '1',<br />
+&nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`username`)<br />
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Admins'；<&#47;code><&#47;div><br />
+<code style="display: block; margin: 0px 1em 1em; font: 12px&#47;1.8em Courier, monospace; border: #ccc 1px solid; padding: 0.5em;">CREATE TABLE `alias` (<br />
+&nbsp;&nbsp;`address` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`goto` text NOT NULL,<br />
+&nbsp;&nbsp;`domain` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`created` datetime NOT NULL default '0000-00-00 00:00:00',<br />
+&nbsp;&nbsp;`modified` datetime NOT NULL default '0000-00-00 00:00:00',<br />
+&nbsp;&nbsp;`active` tinyint(1) NOT NULL default '1',<br />
+&nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`address`)<br />
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Aliases'；</p>
+<p>CREATE TABLE `config` (<br />
+&nbsp;&nbsp;`id` int(11) NOT NULL auto_increment,<br />
+&nbsp;&nbsp;`name` varchar(20) NOT NULL default '',<br />
+&nbsp;&nbsp;`value` varchar(20) NOT NULL default '',<br />
+&nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`id`),<br />
+&nbsp;&nbsp;UNIQUE KEY `name` (`name`)<br />
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COMMENT='PostfixAdmin settings'；</p>
+<p>CREATE TABLE `domain` (<br />
+&nbsp;&nbsp;`domain` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`description` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL,<br />
+&nbsp;&nbsp;`aliases` int(10) NOT NULL default '0',<br />
+&nbsp;&nbsp;`mailboxes` int(10) NOT NULL default '0',<br />
+&nbsp;&nbsp;`maxquota` bigint(20) NOT NULL default '0',<br />
+&nbsp;&nbsp;`quota` bigint(20) NOT NULL default '0',<br />
+&nbsp;&nbsp;`transport` varchar(255) default NULL,<br />
+&nbsp;&nbsp;`backupmx` tinyint(1) NOT NULL default '0',<br />
+&nbsp;&nbsp;`created` datetime NOT NULL default '0000-00-00 00:00:00',<br />
+&nbsp;&nbsp;`modified` datetime NOT NULL default '0000-00-00 00:00:00',<br />
+&nbsp;&nbsp;`active` tinyint(1) NOT NULL default '1',<br />
+&nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`domain`)<br />
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Domains'；</p>
+<p>CREATE TABLE `domain_admins` (<br />
+&nbsp;&nbsp;`username` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`domain` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`created` datetime NOT NULL default '0000-00-00 00:00:00',<br />
+&nbsp;&nbsp;`active` tinyint(1) NOT NULL default '1',<br />
+&nbsp;&nbsp;KEY `username` (`username`)<br />
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Domain Admins'；</p>
+<p>CREATE TABLE `fetchmail` (<br />
+&nbsp;&nbsp;`id` int(11) unsigned NOT NULL auto_increment,<br />
+&nbsp;&nbsp;`mailbox` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`src_server` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`src_auth` enum('password','kerberos_v5','kerberos','kerberos_v4','gssapi','cram-md5','otp','ntlm','msn','ssh','any') default NULL,<br />
+&nbsp;&nbsp;`src_user` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`src_password` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`src_folder` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`poll_time` int(11) unsigned NOT NULL default '10',<br />
+&nbsp;&nbsp;`fetchall` tinyint(1) unsigned NOT NULL default '0',<br />
+&nbsp;&nbsp;`keep` tinyint(1) unsigned NOT NULL default '0',<br />
+&nbsp;&nbsp;`protocol` enum('POP3','IMAP','POP2','ETRN','AUTO') default NULL,<br />
+&nbsp;&nbsp;`extra_options` text,<br />
+&nbsp;&nbsp;`returned_text` text,<br />
+&nbsp;&nbsp;`mda` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`date` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,<br />
+&nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`id`)<br />
+) ENGINE=MyISAM DEFAULT CHARSET=latin1；</p>
+<p>CREATE TABLE `log` (<br />
+&nbsp;&nbsp;`timestamp` datetime NOT NULL default '0000-00-00 00:00:00',<br />
+&nbsp;&nbsp;`username` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`domain` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`action` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`data` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;KEY `timestamp` (`timestamp`)<br />
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Log'；</p>
+<p>CREATE TABLE `mailbox` (<br />
+&nbsp;&nbsp;`username` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`password` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`name` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL,<br />
+&nbsp;&nbsp;`maildir` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`quota` bigint(20) NOT NULL default '0',<br />
+&nbsp;&nbsp;`domain` varchar(255) NOT NULL default '',<br />
+&nbsp;&nbsp;`created` datetime NOT NULL default '0000-00-00 00:00:00',<br />
+&nbsp;&nbsp;`modified` datetime NOT NULL default '0000-00-00 00:00:00',<br />
+&nbsp;&nbsp;`active` tinyint(1) NOT NULL default '1',<br />
+&nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`username`)<br />
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Mailboxes'；</p>
+<p>CREATE TABLE `vacation` (<br />
+&nbsp;&nbsp;`email` varchar(255) NOT NULL,<br />
+&nbsp;&nbsp;`subject` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL,<br />
+&nbsp;&nbsp;`body` text character set utf8 collate utf8_unicode_ci NOT NULL,<br />
+&nbsp;&nbsp;`cache` text NOT NULL,<br />
+&nbsp;&nbsp;`domain` varchar(255) NOT NULL,<br />
+&nbsp;&nbsp;`created` datetime NOT NULL default '0000-00-00 00:00:00',<br />
+&nbsp;&nbsp;`active` tinyint(1) NOT NULL default '1',<br />
+&nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`email`),<br />
+&nbsp;&nbsp;KEY `email` (`email`)<br />
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Vacation'；</p>
+<p>CREATE TABLE `vacation_notification` (<br />
+&nbsp;&nbsp;`on_vacation` varchar(255) NOT NULL,<br />
+&nbsp;&nbsp;`notified` varchar(255) NOT NULL,<br />
+&nbsp;&nbsp;`notified_at` timestamp NOT NULL default CURRENT_TIMESTAMP,<br />
+&nbsp;&nbsp;PRIMARY KEY&nbsp;&nbsp;(`on_vacation`,`notified`),<br />
+&nbsp;&nbsp;CONSTRAINT `vacation_notification_pkey` FOREIGN KEY (`on_vacation`) REFERENCES `vacation` (`email`) ON DELETE CASCADE<br />
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Postfix Admin - Virtual Vacation Notifications'；<a id="more"></a><a id="more-508"></a>注：insert into mailbox values （&rsquo;admin&rsquo;,&rsquo; $1$d8515ca8$PmG&#47;yk6wc7CJVzhi7PZ1Z1&rsquo;,&rsquo; admin&rsquo;,&rsquo; admin&#47;&rsquo;,&rsquo; 0&rsquo;,&rsquo; yangtingjwt.com&rsquo;,&rsquo;&rsquo;,&rsquo;&rsquo;,&rsquo;1&rsquo;）;<br />
+这样邮件就存放在&#47;var&#47;mailbox&#47;admin&#47; 目录下，且需在&#47;var&#47;mailbox&#47;admin&#47;下手动建立cur 目录 （mkdir cur）<br />
+邮件成功后，用户目录下，应该有<br />
+-rw-r--r--&nbsp;&nbsp;1 vmail vmail&nbsp;&nbsp;262 Nov 10 12:24 courierpop3dsizelist<br />
+drwxr-xr-x&nbsp;&nbsp;2 vmail vmail 4096 Nov 10 12:24 cur<br />
+drwx------&nbsp;&nbsp;2 vmail vmail 4096 Nov 10 12:24 new<br />
+drwx------&nbsp;&nbsp;2 vmail vmail 4096 Nov 10 12:24 tmp<br />
+这样四个文件，courierpop3dsizelist是收取的信<br />
+用postfixadmin 添加的话，这些都是自动加入，数据库格式如下<br />
+<a href="mailto:yangting@yangtingjwt.com">yangting@yangtingjwt.com<&#47;a>&nbsp; &nbsp;| $1$0be3f9dd$MnXRFTNcM6IQg1m3WNxdX&#47; | yt&nbsp; &nbsp; | <a href="mailto:yangting@yangtingjwt.com">yangting@yangtingjwt.com<&#47;a>&#47;&nbsp; &nbsp;| 1024000 | yangtingjwt.com&nbsp; &nbsp;| 2008-11-11 11:35:02 | 2008-11-11 11:52:35 |&nbsp; &nbsp;&nbsp; &nbsp;1 |</p>
+<p><&#47;code></p>
+<p><strong>2：cyrus-sasl的安装<&#47;strong><br />
+（1）所有的邮件目录是用下面用户，确保权限<br />
+# groupadd vmail -g 1001<br />
+# useradd vmail -u 1001 -g 1001 -s&#47;sbin&#47;nologin -d&#47;dev&#47;null<br />
+（2）.&#47;configure --enable-anon --enable-plain&nbsp;&nbsp;--enable-login&nbsp;&nbsp;--enable-sql&nbsp;&nbsp;--disable-otp&nbsp;&nbsp;--disable-cram&nbsp;&nbsp;--disable-digest --with-mysql=&#47;usr&#47;local&#47;mysql5&#47;lib&nbsp;&nbsp;--without-pam --without-saslauthd&nbsp;&nbsp;--with-plugindir=&#47;usr&#47;local&#47;lib&#47;sasl2<br />
+Make<br />
+Make install<br />
+(3)ln &ndash;s &#47;usr&#47;local&#47;lib&#47;sasl2&#47; &#47;usr&#47;lib&#47;sasl2&#47;<br />
+(4) vi &#47;usr&#47;local&#47;lib&#47;sasl2&#47;smtpd.conf<br />
+pwcheck_method: authdaemond<br />
+log_level: 3<br />
+mech_list: PLAIN LOGIN<br />
+authdaemond_path: &#47;var&#47;run&#47;authdaemon&#47;socket<br />
+注：是通过authdaemond 去访问数据，而认，mech_list:是在telnet 25的时候能显示<br />
+（5）测试：虚拟域名不能用testsaslauthd测试<br />
+可用sasl2-sample-client 与sasl2-sample-server 测试，但是我没有测试成功</p>
+<p><strong>3：courier-authlib的安装<&#47;strong><br />
+（1）<br />
+.&#47;configure --with-redhat --with-authmysql=yes --with-mysql-libs=&#47;usr&#47;local&#47;mysql5&#47;lib&#47; --with-mysql-includes=&#47;usr&#47;local&#47;mysql&#47;include<br />
+Make<br />
+Make install<br />
+make install-configure<br />
+（2）cd &#47;usr&#47;local&#47;etc&#47;authlib<br />
+Vi authdaemonrc<br />
+authmodulelist="authmysql"<br />
+authmodulelistorig="authmysql"<br />
+daemons=5<br />
+authdaemonvar=&#47;usr&#47;local&#47;var&#47;spool&#47;authdaemon(此目录下有socket)<br />
+DEBUG_LOGIN=2 (开启日志调试功能)<br />
+Vi authmysqlrc<br />
+MYSQL_SERVER&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;127.0.0.1<br />
+MYSQL_USERNAME&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; postfix<br />
+MYSQL_PASSWORD&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; postfix<br />
+MYSQL_SOCKET&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&#47;tmp&#47;mysql.sock<br />
+MYSQL_PORT&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;3306<br />
+MYSQL_DATABASE&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; postfix<br />
+MYSQL_USER_TABLE&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;mailbox（用户信息表）<br />
+MYSQL_CRYPT_PWFIELD&nbsp; &nbsp;&nbsp;&nbsp;password<br />
+DEFAULT_DOMAIN&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;yangtingjwt.com<br />
+MYSQL_UID_FIELD&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;'1001'<br />
+MYSQL_GID_FIELD&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;'1001'<br />
+MYSQL_LOGIN_FIELD&nbsp; &nbsp;&nbsp; &nbsp; username<br />
+MYSQL_HOME_FIELD&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;concat('&#47;var&#47;mailbox&#47;',maildir)<br />
+MYSQL_MAILDIR_FIELD&nbsp; &nbsp;&nbsp;&nbsp;concat('&#47;var&#47;mailbox&#47;',maildir)<br />
+（3）测试：<br />
+&#47;usr&#47;local&#47;sbin&#47;authtest -s smtp&nbsp;&nbsp;admin yangting测试是否与数据库连接<br />
+Authentication succeeded.<br />
+&nbsp; &nbsp;&nbsp;&nbsp;Authenticated: admin&nbsp;&nbsp;(uid 1001, gid 1001)<br />
+&nbsp; &nbsp; Home Directory: &#47;var&#47;mailbox&#47;admin&#47;<br />
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;Maildir: &#47;var&#47;mailbox&#47;admin&#47;<br />
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; Quota: 0S<br />
+Encrypted Password: $1$d8515ca8$PmG&#47;yk6wc7CJVzhi7PZ1Z1<br />
+Cleartext Password: yangting<br />
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;Options: (none)<br />
+<strong><br />
+4：postfix的安装<&#47;strong><br />
+（1）新建postfix 用户与postdrop用户<br />
+（2）安装postfix<br />
+make -f Makefile.init makefiles 'CCARGS=-DHAS_MYSQL -I&#47;usr&#47;local&#47;mysql5&#47;include -DUSE_SASL_AUTH&nbsp;&nbsp;DUSE_CYRUS_SASL -I&#47;usr&#47;local&#47;include&#47;sasl''AUXLIBS=-L&#47;usr&#47;local&#47;mysql5&#47;lib -lmysqlclient -lz -lm -L&#47;usr&#47;local&#47;lib&#47;sasl2 -lsasl2'&nbsp;&nbsp;<br />
+make<br />
+make install<br />
+（3）&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;postconf -a 看是否整合了sasl<br />
+cyrus<br />
+dovecot<br />
+（4）&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;cd&nbsp;&nbsp;&#47;etc&#47;postfix<br />
+vi main.cf<br />
+myhostname = mail.yangtingjwt.com<br />
+mydomain = yangtingjwt.com<br />
+mydestination = （用虚拟用户时，此项为空）<br />
+smtpd_sasl_auth_enable = yes<br />
+smtpd_sasl2_auth_enable = yes<br />
+smtpd_sasl_path=smtpd （调用sasl2下面的smtp.conf 文件）<br />
+smtpd_sasl_security_options = noanonymous<br />
+broken_sasl_auth_clients = yes<br />
+smtpd_recipient_restrictions=permit_sasl_authenticated,reject_invalid_hostname,reject_non_fqdn_hostname,reject_unknown_sender_domain,reject_non_fqdn_sender,reject_non_fqdn_recipient,reject_unknown_recipient_domain,reject_unauth_pipelining,reject_unauth_destination,reject<br />
+smtpd_client_restrictions=permit_sasl_authenticated<br />
+maildrop_destination_recipient_limit = 1<br />
+maildrop_destination_concurrency_limit = 1<br />
+virtual_transport = maildrop &#47;&#47;使用maildrop投递，确保authlib的磁盘限额有效<br />
+#virtual_transport = virtual<br />
+virtual_mailbox_base = &#47;var&#47;mailbox&#47;<br />
+virtual_mailbox_maps = mysql:&#47;etc&#47;postfix&#47;mysql-virtual_mailbox_maps.cf<br />
+virtual_mailbox_domains = mysql:&#47;etc&#47;postfix&#47;mysql-virtual-domains.cf<br />
+virtual_alias_domians =<br />
+virtual_alias_maps = mysql:&#47;etc&#47;postfix&#47;mysql-alias-maps.cf<br />
+virtual_uid_maps = static:1001<br />
+virtual_gid_maps = static:1001</p>
+<p>vi master.cf&nbsp;&nbsp;&#47;&#47;使用maildrop投递，确保authlib的磁盘限额有效<br />
+maildrop&nbsp;&nbsp;unix&nbsp;&nbsp;-&nbsp; &nbsp;&nbsp; &nbsp; n&nbsp; &nbsp;&nbsp; &nbsp; n&nbsp; &nbsp;&nbsp; &nbsp; -&nbsp; &nbsp;&nbsp; &nbsp; -&nbsp; &nbsp;&nbsp; &nbsp; pipe<br />
+&nbsp;&nbsp;flags=DRhu user=vmail argv=&#47;usr&#47;local&#47;bin&#47;maildrop -d ${recipient}</p>
+<p>vi mysql-alias-maps.cf<br />
+user=postfix<br />
+password=postfix<br />
+hosts=127.0.0.1<br />
+dbname=postfix<br />
+table=alias<br />
+select_field=goto<br />
+where_field=address</p>
+<p>vi mysql-virtual-domains.cf<br />
+user=postfix<br />
+password=postfix<br />
+hosts=127.0.0.1<br />
+dbname=postfix<br />
+table=domain<br />
+select_field=description<br />
+where_field=domain<br />
+#additional_conditions=and backupmx='0' and&nbsp;&nbsp;active='1'<br />
+vi mysql-virtual_mailbox_maps.cf(用户信息)<br />
+user=postfix<br />
+password=postfix<br />
+hosts=127.0.0.1<br />
+dbname=postfix<br />
+table=mailbox<br />
+select_field=maildir<br />
+where_field=username<br />
+additional_conditions=and active='1'</p>
+<p><strong>5：courier-imap的安装<&#47;strong><br />
+（1）.&#47;configure --with-redhat --prefix=&#47;usr&#47;local&#47;imap --enable-workarounds-for-imap-client-bugs --with-authchangepwdir --enable-unicode --with-trashquota<br />
+Make、<br />
+make install<br />
+（2）注意：装这个之前，先装courier-authlib</p>
+<p><strong>6：maildrop 安装<&#47;strong><br />
+(1) &#47;configure --enable-maildirquota --enable-maildrop-uid=1001 --enable-maildrop-gid=1001 --with-trashquota<br />
+Make<br />
+Make install<br />
+(2) vi &#47;etc&#47; maildroprc<br />
+logfile "&#47;var&#47;log&#47;maildrop.log"<br />
+(3) touch &#47;var&#47;log&#47;maildrop.log<br />
+Chown 1001:1001 &#47;var&#47;log&#47;maildrop.log<br />
+Chmod 500 &#47;var&#47;log&#47;maildrop.log<br />
+(4)&#47;etc&#47;rc.d&#47;init.d&#47;syslog restart</p>
+<p><strong>7：postfixadmin配置<&#47;strong><br />
+（1）vi config.inc.php<br />
+$CONF['database_type'] = 'mysql';<br />
+$CONF['database_host'] = '127.0.0.1';<br />
+$CONF['database_user'] = 'postfix';<br />
+$CONF['database_password'] = 'postfix';<br />
+$CONF['database_name'] = 'postfix';<br />
+（2）出现的一些问题<br />
+可以利用<br />
+<?<br />
+echo phpinfo();<br />
+?>这个代码查看php.ini的正确位置<br />
+通过查看setup.php 是否有错误<br />
+① Magic Quotes: 在php.ini禁止quotes<br />
+② 安装mbstring 要不然postfixadmin 不能用<br />
+1、用cd命令进入php的源代码目录下的mbstring目录下，cd &#47;home&#47;admin&#47;Mail&#47;php-5.2.6&#47;ext&#47;mbstring<br />
+2、执行&#47;usr&#47;local&#47;php&#47;bin&#47;phpize，（假设php安装在&#47;usr&#47;local&#47;php目录下）<br />
+3、执行.&#47;configure --prefix=&#47;soft&#47;php4&#47;mbstring --with-php-config=&#47;usr&#47;local&#47;php&#47;bin&#47;php-config<br />
+4、执行make<br />
+5、执行make install<br />
+6、编辑php.ini，增加此行：extension=&#47;home&#47;admin&#47;Mail&#47;php-5.2.6&#47;ext&#47;mbstring.so(加上路径)<br />
+7、搜索mbstring.so文件，将其挪到上一级目录，即ext目录下。<br />
+③<br />
+这个错误<br />
+Warning: Depends on: IMAP functions - NOT FOUND<br />
+To install IMAP support, install php5-imap<br />
+Without IMAP support, you won't be able to create subfolders when creating mailboxes.<br />
+要使得php 支持imap<br />
+到ext&#47;imap目录去<br />
+&#47;usr&#47;local&#47;php&#47;bin&#47;phpize<br />
+编译时出现<br />
+configure: error: utf8_mime2text() has new signature, but U8T_CANONICAL is missing. This should not happen. Check config.log for additional information.<br />
+下载这个imap.tar.Z包安装<br />
+make lr5 PASSWDTYPE=std SSLTYPE=unix.nopwd IP6=4<br />
+echo "set disable-plaintext nil" > &#47;etc&#47;c-client.cf<br />
+然后编译<br />
+.&#47;configure --prefix=&#47;home&#47;admin&#47;Mail&#47;php-5.2.6&#47;ext&#47;imap --with-php-config=&#47;usr&#47;local&#47;php5&#47;bin&#47;php-config --with-imap=&#47;home&#47;admin&#47;Mail&#47;imap-2007b --with-imap-ssl=&#47;usr&#47;local&#47;openssl&#47;<br />
+extension=&#47;home&#47;admin&#47;Mail&#47;php-5.2.6&#47;ext&#47;imap&#47;modules&#47;imap.so<br />
+然后重启apache：<br />
+④ 必须对所在的域名做解析，要不然不能添加用户，<a href="http:&#47;&#47;192.168.1.200&#47;postfixadmin&#47;create-mailbox.php" target="_blank">http:&#47;&#47;192.168.1.200&#47;postfixadmin&#47;create-mailbox.php<&#47;a> 会出现The EMAIL is not valid!这样的错误</p>
+<p><strong>8 sqwebmail web管理<&#47;strong><br />
+（1）下载sqwebmail -5.2.2<br />
+.&#47;configure --prefix=&#47;usr&#47;local&#47;sqwebmail&#47; --with-trashquota --enable-cgibindir=&#47;usr&#47;local&#47;apache2&#47;cgi-bin&#47; --enable-imagedir=&#47;usr&#47;local&#47;apache2&#47;htdocs&#47;webmail --with-authvchkpw --with-authdaemon&nbsp;&nbsp;--enable-unicode=utf-8,iso-8859-1,gb2312,gbk,gb18030<br />
+（2）make configure-check<br />
+&nbsp; &nbsp;&nbsp;&nbsp;Make<br />
+&nbsp; &nbsp;&nbsp;&nbsp;make check<br />
+make install<br />
+make install-configure<br />
+（3）&#47;usr&#47;local&#47;sqwebmail&#47;libexec&#47;sqwebmaild.rc start<br />
+然后就<a href="http:&#47;&#47;192.168.1.200&#47;cgi-bin&#47;sqwebmail" target="_blank">http:&#47;&#47;192.168.1.200&#47;cgi-bin&#47;sqwebmail<&#47;a> 就能访问登录了</p>

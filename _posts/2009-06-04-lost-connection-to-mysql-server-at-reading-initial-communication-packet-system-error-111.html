@@ -1,0 +1,29 @@
+---
+layout: post
+status: publish
+published: true
+title: 'Lost connection to MySQL server at ''reading initial communication packet'',
+  system error: 111'
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 637
+wordpress_url: http://ninjacn.com/?p=637
+date: '2009-06-04 15:35:57 +0800'
+date_gmt: '2009-06-04 07:35:57 +0800'
+categories:
+- Server
+tags:
+- mysql
+- Program
+comments: []
+---
+<p>最近遇到一个比较少见的问题，php连接mySQL的时候，会报错<br />
+Lost connection to MySQL server at 'reading initial communication packet', system error: 111<br />
+这种现象还不是不断重复的，出现的频率不确定，疑似mySQL数据丢包。google之后，得到解决办法，通过修改my.cnf</p>
+<p>1. 注释掉 # skip-networking<br />
+2. 给MYSQL绑定IP bind-address = 123.88.88.88 # server IP address</p>

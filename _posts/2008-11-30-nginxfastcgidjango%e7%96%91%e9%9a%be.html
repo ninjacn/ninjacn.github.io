@@ -1,0 +1,39 @@
+---
+layout: post
+status: publish
+published: true
+title: nginx+fastcgi+django疑难
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+excerpt: |
+  这个问题折磨我好多天了，干其它事也干不了。。
+  在NGINX上配置了DJANGO以后，URL只匹配空串，也不是说空串，域名后面输入任意个字符它都会重定向都(^$)所指向的位置。多次调整DJANGO配置，试了好多办法都没有解决，其实知道是NGINX配置哪儿有问题，但始终找不出。偶尔机会，因为我以前配置NGINX+FASTCGI一直用将下面一将写进去导致了以上问题：
+  <code>include conf&#47;fastcgi-params<&#47;code>
+wordpress_id: 232
+wordpress_url: http://ninjacn.com/?p=232
+date: '2008-11-30 21:27:55 +0800'
+date_gmt: '2008-11-30 13:27:55 +0800'
+categories:
+- Server
+tags:
+- django
+- fastcgi
+- nginx
+comments: []
+---
+<p>这个问题折磨我好多天了，干其它事也干不了。。<br />
+在NGINX上配置了DJANGO以后，URL只匹配空串，也不是说空串，域名后面输入任意个字符它都会重定向都(^$)所指向的位置。多次调整DJANGO配置，试了好多办法都没有解决，其实知道是NGINX配置哪儿有问题，但始终找不出。偶尔机会，因为我以前配置NGINX+FASTCGI一直用将下面一将写进去导致了以上问题：<br />
+<code>include conf&#47;fastcgi-params<&#47;code><br />
+<a id="more"></a><a id="more-232"></a><br />
+在这个文件里面有一个参数与DJANGO+NGINX（官方文档）的path_info参数的结果一样。<br />
+-----------------------------------<br />
+fastcgi-params文件包含：<br />
+<code>fastcgi_param  SCRIPT_NAME        $fastcgi_script_name;<&#47;code><br />
+django+fastcgi+nginx:<br />
+<code>fastcgi_param PATH_INFO $fastcgi_script_name;<&#47;code><br />
+虽然问题是解决了，但搞不明白这两个参数有什么区别，哎，不管了，以后有空研究吧！！！</p>

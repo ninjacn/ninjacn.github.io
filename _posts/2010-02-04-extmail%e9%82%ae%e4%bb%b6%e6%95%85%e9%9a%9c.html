@@ -1,0 +1,44 @@
+---
+layout: post
+status: publish
+published: true
+title: extmail邮件故障
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 879
+wordpress_url: http://ninjacn.com/?p=879
+date: '2010-02-04 12:49:43 +0800'
+date_gmt: '2010-02-04 04:49:43 +0800'
+categories:
+- Server
+tags:
+- extmail
+- maildrop
+- "自动回复"
+comments:
+- id: 1394
+  author: "深圳ERP"
+  author_email: a15919902227@163.com
+  author_url: http://www.opensoft.com.cn#4
+  date: '2013-08-09 11:20:58 +0800'
+  date_gmt: '2013-08-09 03:20:58 +0800'
+  content: ":razz: 还不错，看了之后先去试试"
+---
+<p>日志报错如下：<br />
+(temporary failure. Command output: sh: mailbot: command not found maildrop: error writing to mailbox. &#47;opt&#47;maildrop&#47;bin&#47;maildrop: Unable to deliver to mailbox.)</p>
+<p>提示找不到maildrop,但文件确定是存在的，安装也没有问题。唯独路径没有在PATH中。将&#47;opt&#47;maildrop&#47;bin加入PATH</p>
+<p>[cc lang="bash"] vi &#47;etc&#47;profile<br />
+PATH=$PATH:&#47;opt&#47;maildrop&#47;bin<br />
+source &#47;etc&#47;profile[&#47;cc]</p>
+<p>加入后可以收邮件了，但自动回复好像还不不行，</p>
+<p><span style="color: #ff0000;">以下是更新部分（解决办法）：<&#47;span><br />
+将maildrop和mailbot权限调整为vmail（按各自系统定）<br />
+将maildrop和mailbot做软链接<br />
+[cc lang="bash"]ln -s &#47;opt&#47;maildrop&#47;bin&#47;maildrop &#47;usr&#47;bin&#47;maildrop<br />
+ln -s &#47;opt&#47;maildrop&#47;bin&#47;mailbot &#47;usr&#47;bin&#47;mailbot[&#47;cc]</p>
+<p>问题解决。。。</p>

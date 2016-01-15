@@ -1,0 +1,76 @@
+---
+layout: post
+status: publish
+published: true
+title: 'ip_conntrack: table full, dropping packet.'
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+excerpt: "WEB服务器做压力测试时，错误LOG：\r\n\r\nNov 10 15:42:13 web01 kernel: ip_conntrack: table
+  full, dropping packet.\r\nNov 10 15:42:19 web01 kernel: printk: 204 messages suppressed.\r\nNov
+  10 15:42:19 web01 kernel: ip_conntrack: table full, dropping packet.\r\nNov 10 15:42:25
+  web01 kernel: printk: 204 messages suppressed.\r\n\r\nTELNET连接80端口也连接不上。\r\n\r\n[root@web
+  ~]# cat &#47;proc&#47;sys&#47;net&#47;ipv4&#47;netfilter&#47;ip_conntrack_max<span
+  style=\"DISPLAY: none\">IXPUB技术博客\x06O\ei0D+J+V\x17c\x1E^<&#47;span>\r\n65536\r\n\r\n后来添加ip_conntrack_max值有所好转：\r\n\r\necho
+  \"262144\" > &#47;proc&#47;sys&#47;net&#47;ipv4&#47;ip_conntrack_max\r\n\r\n<strong>还有更多优化参数：详细可以参考以下："
+wordpress_id: 757
+wordpress_url: http://ninjacn.com/?p=757
+date: '2009-11-10 16:58:32 +0800'
+date_gmt: '2009-11-10 08:58:32 +0800'
+categories:
+- System
+tags:
+- linux
+- ip_conntrack
+comments: []
+---
+<p>WEB服务器做压力测试时，错误LOG：</p>
+<p>Nov 10 15:42:13 web01 kernel: ip_conntrack: table full, dropping packet.<br />
+Nov 10 15:42:19 web01 kernel: printk: 204 messages suppressed.<br />
+Nov 10 15:42:19 web01 kernel: ip_conntrack: table full, dropping packet.<br />
+Nov 10 15:42:25 web01 kernel: printk: 204 messages suppressed.</p>
+<p>TELNET连接80端口也连接不上。</p>
+<p>[root@web ~]# cat &#47;proc&#47;sys&#47;net&#47;ipv4&#47;netfilter&#47;ip_conntrack_max<span style="DISPLAY: none">IXPUB技术博客Oi0D+J+Vc^<&#47;span><br />
+65536</p>
+<p>后来添加ip_conntrack_max值有所好转：</p>
+<p>echo "262144" > &#47;proc&#47;sys&#47;net&#47;ipv4&#47;ip_conntrack_max</p>
+<p><strong>还有更多优化参数：详细可以参考以下：<a id="more"></a><a id="more-757"></a><&#47;strong></p>
+<p>可调整以下参数：</p>
+<p>echo 180 > &#47;proc&#47;sys&#47;net&#47;ipv4&#47;netfilter&#47;ip_conntrack_tcp_timeout_established<br />
+echo 262144 > &#47;proc&#47;sys&#47;net&#47;ipv4&#47;netfilter&#47;ip_conntrack_max<br />
+echo 120&nbsp;&nbsp; > &#47;proc&#47;sys&#47;net&#47;ipv4&#47;neigh&#47;default&#47;gc_stale_time<br />
+echo 1024 > &#47;proc&#47;sys&#47;net&#47;ipv4&#47;neigh&#47;default&#47;gc_thresh1<br />
+echo 4096 > &#47;proc&#47;sys&#47;net&#47;ipv4&#47;neigh&#47;default&#47;gc_thresh2<br />
+echo 8192 > &#47;proc&#47;sys&#47;net&#47;ipv4&#47;neigh&#47;default&#47;gc_thresh3</p>
+<p>或vi &#47;etc&#47;sysctl.conf</p>
+<p>net.ipv4.ip_conntrack_max = 655360<br />
+net.ipv4.netfilter.ip_conntrack_tcp_timeout_established = 180</p>
+<p>再sysctl -p</p>
+<p>相关参数说明：</p>
+<p>ARP 支持一个 sysctl 接口，可以用以配置全局参数或逐个网络接口地进行配制。 该 sysctl 可以通过 <strong>&#47;proc&#47;sys&#47;net&#47;ipv4&#47;neigh&#47;*&#47;*<&#47;strong> 文件或者使用 <strong>sysctl<&#47;strong>(2) 接口来访问。系统中每个接口都在 &#47;proc&#47;sys&#47;net&#47;ipv4&#47;neigh&#47;. 中有自己的目录。`default'目录中的设置用于所有新建的设备。 sysctl 相关的时间是以秒为单位，除非特别声明过． <a href="http:&#47;&#47;bbs.ixdba.net&#47;" target="_blank"><strong>IXDBA.NET社区论坛<&#47;strong><&#47;a></p>
+<p align="left"><strong>anycast_delay<&#47;strong><&#47;p></p>
+<p align="left">对 IPv6 相邻请求信息的回复的最大延迟时间； 目前还不支持 anycast。缺省值为1秒。<&#47;p></p>
+<p align="left"><strong>app_solicit<&#47;strong><&#47;p></p>
+<p align="left">这是在使用多路广播探测(multicast probe)前， 经过网络连接送到用户间隙ARP端口监控程序的探测（probe） 最大数目(见 <em>mcast_solicit<&#47;em> )。 缺省值为0。<&#47;p></p>
+<p align="left"><strong>base_reachable_time<&#47;strong><&#47;p></p>
+<p align="left">一旦发现相邻记录，至少在一段介于 <em>base_reachable_time<&#47;em>&#47;2和3*<em>base_reachable_time<&#47;em>&#47;2 之间的随机时间内，该记录是有效的。如果收到上层协议的肯定反馈， 那么记录的有效期将延长。 缺省值是30秒。<&#47;p></p>
+<p align="left"><strong>delay_first_probe_time<&#47;strong><&#47;p></p>
+<p align="left">发现某个相邻层记录无效(stale)后，发出第一个探测要等待的时间。 缺省值是5秒。<&#47;p></p>
+<p align="left"><strong>gc_interval<&#47;strong><&#47;p></p>
+<p align="left">收集相邻层记录的无用记录的垃圾收集程序的运行周期，缺省为30秒。<&#47;p></p>
+<p align="left"><strong>gc_stale_time<&#47;strong><&#47;p></p>
+<p align="left">决定检查一次相邻层记录的有效性的周期。 当相邻层记录失效时，将在给它发送数据前，再解析一次。 缺省值是60秒。<&#47;p></p>
+<p align="left"><strong>gc_thresh1<&#47;strong><&#47;p></p>
+<p align="left">存在于ARP高速缓存中的最少层数，如果少于这个数， 垃圾收集器将不会运行。缺省值是128。<&#47;p></p>
+<p align="left"><strong>gc_thresh2<&#47;strong><&#47;p></p>
+<p align="left">保存在 ARP 高速缓存中的最多的记录软限制。 垃圾收集器在开始收集前，允许记录数超过这个数字 5 秒。 缺省值是 512。<&#47;p></p>
+<p align="left"><strong>gc_thresh3<&#47;strong><&#47;p></p>
+<p align="left">保存在 ARP 高速缓存中的最多记录的硬限制， 一旦高速缓存中的数目高于此， 垃圾收集器将马上运行。缺省值是1024。<&#47;p></p>
+<p align="left"><strong>locktime<&#47;strong><&#47;p></p>
+<p align="left">ARP 记录保存在高速缓存内的最短时间（jiffy数）， 以防止存在多个可能的映射(potential mapping)时， ARP 高速缓存系统的颠簸 (经常是由于网络的错误配置而引起)。 缺省值是 1 秒。<&#47;p></p>
+<p align="left"><strong>mcast_solicit<&#47;strong><&#47;p></p>
+<p align="left">在把记录标记为不可抵达的之前， 用多路广播&#47;广播（multicast&#47;broadcast）方式解析地址的最大次数。<&#47;p></p>

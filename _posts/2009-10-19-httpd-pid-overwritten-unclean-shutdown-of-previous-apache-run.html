@@ -1,0 +1,31 @@
+---
+layout: post
+status: publish
+published: true
+title: httpd.pid overwritten -- Unclean shutdown of previous Apache run?
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 751
+wordpress_url: http://ninjacn.com/?p=751
+date: '2009-10-19 14:04:03 +0800'
+date_gmt: '2009-10-19 06:04:03 +0800'
+categories:
+- Server
+tags:
+- apache
+- overwritten
+comments: []
+---
+<p>APACHE启动成功，但无法接受任何请求，查看ERROR.LOG文件<br />
+[warn] pid file &#47;opt&#47;apache&#47;logs&#47;httpd.pid overwritten -- Unclean shutdown of previous Apache run?<br />
+大概意思是说PID文件一直被一个程序改写，我测试系统上还运行了RESIN，只要停止了就可以了<br />
+<code>resin&#47;bin&#47;httpd.sh stop<&#47;code><br />
+再启动APACHE<br />
+<code>apache&#47;bin&#47;apachectl start<&#47;code><br />
+启动APACHE完成之后再启动RESIN<br />
+<code>resin&#47;bin&#47;httpd.sh start<&#47;code></p>

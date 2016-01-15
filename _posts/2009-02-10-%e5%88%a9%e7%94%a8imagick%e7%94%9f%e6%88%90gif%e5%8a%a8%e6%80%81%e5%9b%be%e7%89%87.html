@@ -1,0 +1,68 @@
+---
+layout: post
+status: publish
+published: true
+title: "利用imagick生成GIF动态图片"
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 309
+wordpress_url: http://ninjacn.com/?p=309
+date: '2009-02-10 17:23:42 +0800'
+date_gmt: '2009-02-10 09:23:42 +0800'
+categories:
+- Program
+tags:
+- imagick
+- Program
+comments: []
+---
+<p><coolcode lang="php"><br />
+<?php</p>
+<p>&#47;* This object will hold the animation *&#47;<br />
+$animation = new Imagick();</p>
+<p>&#47;* Set the format to gif. All created images will be gifs*&#47;<br />
+$animation->setFormat( "gif" );</p>
+<p>&#47;* Create a pixel to handle colors *&#47;<br />
+$color = new ImagickPixel( "white" );</p>
+<p>&#47;* The first frame *&#47;<br />
+$color->setColor( "white" );</p>
+<p>&#47;* This is the string we print on the image<br />
+    Character by character *&#47;<br />
+$string = "HELLO WORLD!";</p>
+<p>&#47;* Create a new ImagickDraw object and set the font<br />
+    Text color defaults to black *&#47;<br />
+$draw = new ImagickDraw();</p>
+<p>&#47;* You can get configured fonts with $im->queryFonts<br />
+    or use &#47;path&#47;to&#47;file.ttf *&#47;<br />
+$draw->setFont( "Arial" );</p>
+<p>&#47;* Loop trough the string.. *&#47;<br />
+for ( $i = 0; $i <= strlen( $string ); $i++ )<br />
+{<br />
+    &#47;* Take some characters for this frame *&#47;<br />
+    $part = substr( $string, 0, $i );</p>
+<p>    &#47;* Create a new frame *&#47;<br />
+    $animation->newImage( 100, 50, $color );</p>
+<p>    &#47;* Annotate the characters on the image *&#47;<br />
+    $animation->annotateImage( $draw, 10, 10, 0, $part );</p>
+<p>    &#47;* Set a little higher delay for the frame*&#47;<br />
+    $animation->setImageDelay( 30 );<br />
+}</p>
+<p>&#47;* The last frame contains the same text with bold *&#47;<br />
+$draw->setFont( "Arial" );</p>
+<p>&#47;* One more frame *&#47;<br />
+$animation->newImage( 100, 50, $color );</p>
+<p>&#47;* Annotate the bold text on the image *&#47;<br />
+$animation->annotateImage( $draw, 10, 10, 0, $string );</p>
+<p>&#47;* The bold can be visible a little longer time *&#47;<br />
+$animation->setImageDelay( 60 );</p>
+<p>&#47;* Display the output as an animation.<br />
+    Use getImagesBlob to get all images combined *&#47;<br />
+header( "Content-Type: image&#47;gif" );<br />
+echo $animation->getImagesBlob();</p>
+<p>?></p>
+<p><&#47;coolcode></p>

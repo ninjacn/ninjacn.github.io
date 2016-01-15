@@ -1,0 +1,50 @@
+---
+layout: post
+status: publish
+published: true
+title: xen虚拟机时间同步失败的解决办法
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 954
+wordpress_url: http://ninjacn.com/?p=954
+date: '2011-05-08 13:34:50 +0800'
+date_gmt: '2011-05-08 05:34:50 +0800'
+categories:
+- System
+tags:
+- xen
+- "时间同步"
+comments:
+- id: 333
+  author: "陈子"
+  author_email: chenlin.rao@bj.china.com
+  author_url: http://chenlinux.com
+  date: '2011-06-07 15:21:46 +0800'
+  date_gmt: '2011-06-07 07:21:46 +0800'
+  content: "这不是bug啊，虚拟机同宿主机硬件时钟同步，本来是很方便的嘛。不过因为软件模拟中断会在负载变化的时候出现延迟，所以慢慢会跑歪了&hellip;&hellip;"
+- id: 334
+  author: "姚鸣"
+  author_email: x@ninjacn.com
+  author_url: ''
+  date: '2011-06-07 15:25:23 +0800'
+  date_gmt: '2011-06-07 07:25:23 +0800'
+  content: "<a href=\"#comment-333\" rel=\"nofollow\">@陈子  <&#47;a> \r\n出现的情况是宿主机时间正常，虚拟机时间不正常，且不能跟时间服务器同步，手工也无法设置时间。虚拟机最好还是定时与时间服务器同步为好。"
+- id: 1179
+  author: 456游戏大厅完整版
+  author_email: efoej777@338.com
+  author_url: http://www.sdosa.com
+  date: '2012-07-07 23:23:40 +0800'
+  date_gmt: '2012-07-07 15:23:40 +0800'
+  content: "楼主，太爱你了。http:&#47;&#47;www.sdosa.com"
+---
+<p>xen有一个bug，就是当虚拟主机跟虚拟客户机的时间对不上，主机的可以校正，客户机无论用ntpdate怎么调时间都调不准确，执行命令成功，但无法更改。解决办法如下：<br />
+echo 1 > &#47;proc&#47;sys&#47;xen&#47;independent_wallclock<br />
+然后使用ntpdate校正，但客户机重启后还是会同步主机时间，要让这个配置开机有效可以将上面的命令加入&#47;etc&#47;rc.local，或添加下面的配置到&#47;etc&#47;sysctl.conf中<br />
+xen.independent_wallclock  = 1<br />
+注：以上操作在虚拟机上进行。</p>
+<p>原链接：http:&#47;&#47;blogold.chinaunix.net&#47;u3&#47;109137&#47;showart_2507339.html</p>

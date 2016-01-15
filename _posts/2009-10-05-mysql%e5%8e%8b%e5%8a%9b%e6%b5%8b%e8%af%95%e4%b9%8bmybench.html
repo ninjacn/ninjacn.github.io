@@ -1,0 +1,46 @@
+---
+layout: post
+status: publish
+published: true
+title: mysql压力测试之mybench
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 738
+wordpress_url: http://ninjacn.com/?p=738
+date: '2009-10-05 17:59:18 +0800'
+date_gmt: '2009-10-05 09:59:18 +0800'
+categories:
+- DB
+tags:
+- mysql
+- mybench
+comments: []
+---
+<p>mybench是用PERL写的简单压力测试工具。官方：http:&#47;&#47;jeremy.zawodny.com&#47;mysql&#47;mybench&#47;<br />
+下载地址：http:&#47;&#47;jeremy.zawodny.com&#47;mysql&#47;mybench&#47;mybench-1.0.tar.gz<br />
+本站地址：<a href="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2009&#47;10&#47;mybench-1.0.tar.gz">mybench-1.0.tar<&#47;a></p>
+<p>安装cd mybench</p>
+<p>#perl Makefile.pm</p>
+<p>make &amp;&amp; make install</p>
+<p>这个工具需要DBI模块</p>
+<p>perl -MCPAN -e shell</p>
+<p>>install DBI</p>
+<p>mybench的执行文件&#47;usr&#47;bin&#47;bench_example</p>
+<p>修改该文件中数据库连接信息，默认需要TEST库跟MYTABLE表</p>
+<p>[root@centos01 mybench-1.0]# .&#47;bench_example<br />
+forking: ++++++++++<br />
+sleeping for 2 seconds while kids get ready<br />
+waiting: ----------<br />
+test: 1000 0.000101 0.208674 0.000866643 0.866643 11538.7766358235<br />
+&nbsp; clients : 10<br />
+&nbsp; queries : 1000<br />
+&nbsp; fastest : 0.000101<br />
+&nbsp; slowest : 0.208674<br />
+&nbsp; average : 0.000866643<br />
+&nbsp; serial&nbsp; : 0.866643<br />
+&nbsp; q&#47;sec&nbsp;&nbsp; : 11538.7766358235</p>

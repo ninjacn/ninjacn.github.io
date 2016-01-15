@@ -1,0 +1,153 @@
+---
+layout: post
+status: publish
+published: true
+title: 系统无法启动，提示"VolGroup00" not found
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+excerpt: |-
+  环境：
+  HP xw8600 workstation
+  RHEL 5.0，内核版本是2.6.18-8.el5
+
+  并没有做什么特殊的操作，当时只是在高度一张板卡，换了几次PCIe插槽；另外为了测试修改系统用nvidia的软件配置了一下双屏，仅此而已，然后某次就容易出现这个问题：<code>
+  Red Hat nash version 5.1.19.6 staring
+  usb 1-2: device not accepting address 2, error -71
+  Reading all physical volumes. This may take a while...
+  No volume groups found
+  Volume group "VolGroup00" not found
+  Unable to access resume device (&#47;dev&#47;VolGroup00&#47;LogVol01)
+  mount: could not find filesystem '&#47;dev&#47;root'
+  setuproot: moving &#47;dev failed: No such file or directory
+  setuproot: error mounting &#47;proc: No such file or directory
+  setuproot: error mounting &#47;sys: No such file or directory
+  switchroot: mount failed: No such file or directory-e000
+  Kernel panic - not syncing: Attempted to kill init
+  <&#47;code>
+wordpress_id: 646
+wordpress_url: http://ninjacn.com/?p=646
+date: '2009-06-04 17:18:37 +0800'
+date_gmt: '2009-06-04 09:18:37 +0800'
+categories:
+- System
+tags:
+- redhat
+- volgroup00
+- xw8600
+comments: []
+---
+<p>环境：<br />
+HP xw8600 workstation<br />
+RHEL 5.0，内核版本是2.6.18-8.el5</p>
+<p>并没有做什么特殊的操作，当时只是在高度一张板卡，换了几次PCIe插槽；另外为了测试修改系统用nvidia的软件配置了一下双屏，仅此而已，然后某次就容易出现这个问题：<code><br />
+Red Hat nash version 5.1.19.6 staring<br />
+usb 1-2: device not accepting address 2, error -71<br />
+Reading all physical volumes. This may take a while...<br />
+No volume groups found<br />
+Volume group "VolGroup00" not found<br />
+Unable to access resume device (&#47;dev&#47;VolGroup00&#47;LogVol01)<br />
+mount: could not find filesystem '&#47;dev&#47;root'<br />
+setuproot: moving &#47;dev failed: No such file or directory<br />
+setuproot: error mounting &#47;proc: No such file or directory<br />
+setuproot: error mounting &#47;sys: No such file or directory<br />
+switchroot: mount failed: No such file or directory-e000<br />
+Kernel panic - not syncing: Attempted to kill init<br />
+<&#47;code><a id="more"></a><a id="more-646"></a><br />
+<strong>fdisk -l的信息：<&#47;strong><br />
+<code><br />
+Disk &#47;dev&#47;sda: 250.0 GB, 250059350016 bytes<br />
+255 heads, 63 sectors&#47;track, 30401 cylinders<br />
+Units = cylinders of 16065 * 512 = 8225280 bytes<&#47;code></p>
+<p>Device Boot Start End Blocks Id System<br />
+&#47;dev&#47;sda1 * 1 13 104391 83 Linux<br />
+&#47;dev&#47;sda2 29096 30401 10490445 7 HPFS&#47;NTFS<br />
+&#47;dev&#47;sda3 14 29095 233601165 8e Linux LVM</p>
+<p>Partition table entries are not in disk order<br />
+vgdisplay的信息：</p>
+<table class="t_table" border="0" cellspacing="0" width="95%" align="center">
+<tbody>
+<tr>
+<td><span style="font-family: FixedSys;">&nbsp;&nbsp;--- Volume group ---<br />
+&nbsp;&nbsp;VG Name&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;VolGroup00<br />
+&nbsp;&nbsp;System ID&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />
+&nbsp;&nbsp;Format&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; lvm2<br />
+&nbsp;&nbsp;Metadata Areas&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;1<br />
+&nbsp;&nbsp;Metadata Sequence No&nbsp;&nbsp;3<br />
+&nbsp;&nbsp;VG Access&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; read&#47;write<br />
+&nbsp;&nbsp;VG Status&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; resizable<br />
+&nbsp;&nbsp;MAX LV&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; 0<br />
+&nbsp;&nbsp;Cur LV&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; 2<br />
+&nbsp;&nbsp;Open LV&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;2<br />
+&nbsp;&nbsp;Max PV&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; 0<br />
+&nbsp;&nbsp;Cur PV&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; 1<br />
+&nbsp;&nbsp;Act PV&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; 1<br />
+&nbsp;&nbsp;VG Size&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;222.75 GB<br />
+&nbsp;&nbsp;PE Size&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;32.00 MB<br />
+&nbsp;&nbsp;Total PE&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;7128<br />
+&nbsp;&nbsp;Alloc PE &#47; Size&nbsp; &nbsp;&nbsp; &nbsp; 7128 &#47; 222.75 GB<br />
+&nbsp;&nbsp;Free&nbsp;&nbsp;PE &#47; Size&nbsp; &nbsp;&nbsp; &nbsp; 0 &#47; 0&nbsp; &nbsp;<br />
+&nbsp;&nbsp;VG UUID&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;KmmaVH-16yN-A4pW-QI4o-UsfF-k93d-IumHLr<br />
+<&#47;span><&#47;td><br />
+<&#47;tr><br />
+<&#47;tbody><&#47;table><br />
+pvdisplay的信息：</p>
+<table class="t_table" border="0" cellspacing="0" width="95%" align="center">
+<tbody>
+<tr>
+<td><span style="font-family: FixedSys;">--- Physical volume ---<br />
+&nbsp;&nbsp;PV Name&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&#47;dev&#47;sda3<br />
+&nbsp;&nbsp;VG Name&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;VolGroup00<br />
+&nbsp;&nbsp;PV Size&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;222.78 GB &#47; not usable 30.14 MB<br />
+&nbsp;&nbsp;Allocatable&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;yes (but full)<br />
+&nbsp;&nbsp;PE Size (KByte)&nbsp; &nbsp;&nbsp; &nbsp; 32768<br />
+&nbsp;&nbsp;Total PE&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;7128<br />
+&nbsp;&nbsp;Free PE&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;0<br />
+&nbsp;&nbsp;Allocated PE&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; 7128<br />
+&nbsp;&nbsp;PV UUID&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;q91UTc-37oM-DBur-xvAl-sHfK-ptRk-dGCg99<br />
+<&#47;span><&#47;td><br />
+<&#47;tr><br />
+<&#47;tbody><&#47;table><br />
+lvdisplay的信息：</p>
+<table class="t_table" border="0" cellspacing="0" width="95%" align="center">
+<tbody>
+<tr>
+<td><span style="font-family: FixedSys;">&nbsp;&nbsp;--- Logical volume ---<br />
+&nbsp;&nbsp;LV Name&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &#47;dev&#47;VolGroup00&#47;LogVol00<br />
+&nbsp;&nbsp;VG Name&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; VolGroup00<br />
+&nbsp;&nbsp;LV UUID&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; BlI5PE-K14u-JYej-mAp2-eBS2-uG9b-508YwR<br />
+&nbsp;&nbsp;LV Write Access&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;read&#47;write<br />
+&nbsp;&nbsp;LV Status&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;available<br />
+&nbsp;&nbsp;# open&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;1<br />
+&nbsp;&nbsp;LV Size&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; 220.81 GB<br />
+&nbsp;&nbsp;Current LE&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; 7066<br />
+&nbsp;&nbsp;Segments&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;1<br />
+&nbsp;&nbsp;Allocation&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; inherit<br />
+&nbsp;&nbsp;Read ahead sectors&nbsp; &nbsp;&nbsp;&nbsp;0<br />
+&nbsp;&nbsp;Block device&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;253:0<br />
+&nbsp; &nbsp;<br />
+&nbsp;&nbsp;--- Logical volume ---<br />
+&nbsp;&nbsp;LV Name&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &#47;dev&#47;VolGroup00&#47;LogVol01<br />
+&nbsp;&nbsp;VG Name&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; VolGroup00<br />
+&nbsp;&nbsp;LV UUID&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; tO7K1a-c41k-ofbj-O0y9-mrRE-zii1-8NG446<br />
+&nbsp;&nbsp;LV Write Access&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;read&#47;write<br />
+&nbsp;&nbsp;LV Status&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;available<br />
+&nbsp;&nbsp;# open&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;1<br />
+&nbsp;&nbsp;LV Size&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; 1.94 GB<br />
+&nbsp;&nbsp;Current LE&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; 62<br />
+&nbsp;&nbsp;Segments&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;1<br />
+&nbsp;&nbsp;Allocation&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; inherit<br />
+&nbsp;&nbsp;Read ahead sectors&nbsp; &nbsp;&nbsp;&nbsp;0<br />
+&nbsp;&nbsp;Block device&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;253:1<br />
+<&#47;span><&#47;td><br />
+<&#47;tr><br />
+<&#47;tbody><&#47;table><br />
+<strong>解决办法:<&#47;strong><br />
+重建initramfs<br />
+http:&#47;&#47;kbase.redhat.com&#47;faq&#47;docs&#47;DOC-1959<br />
+--------------------------------------------------------------------<br />
+通常情况下，一些存储和磁盘控制器的更换，需要重建initrd。这些驱动参数的更改，在修改&#47;etc&#47;modprobe.conf之后也要重建initrd。因为这样可以将手动添加的驱动模块和modprobe.conf修改重新加入到ramdisk中。</p>

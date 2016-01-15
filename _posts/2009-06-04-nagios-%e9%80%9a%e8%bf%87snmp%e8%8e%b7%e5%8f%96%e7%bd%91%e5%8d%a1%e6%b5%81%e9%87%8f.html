@@ -1,0 +1,366 @@
+---
+layout: post
+status: publish
+published: true
+title: Nagios 通过snmp获取网卡流量
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+excerpt: "<strong>google一下snmp的漏洞,避免下载到未打补丁的版本<&#47;strong>\n\nNet-SNMP远程绕过认证漏洞\n受影响系统：\nNet-SNMP
+  net-snmp 5.4.x\nNet-SNMP net-snmp 5.3.x\nNet-SNMP net-snmp 5.2.x\n\n不受影响系统：\nNet-SNMP
+  net-snmp 5.4.1.1\nNet-SNMP net-snmp 5.3.2.1\nNet-SNMP net-snmp 5.2.4.1\n\n<strong>检查有无安装snmp<&#47;strong>\n<div
+  class=\"hl-surround\">\n<ol class=\"hl-main ln-show\" title=\"Double click to hide
+  line number.\" ondblclick=\"linenumber(this)\">\n\t<li class=\"hl-firstline\">rpm
+  -qa|grep snmp<&#47;li>\n<&#47;ol>\n<&#47;div>"
+wordpress_id: 644
+wordpress_url: http://ninjacn.com/?p=644
+date: '2009-06-04 17:12:49 +0800'
+date_gmt: '2009-06-04 09:12:49 +0800'
+categories:
+- Server
+tags:
+- nagios
+- snmp
+- "流量"
+- "网卡"
+comments: []
+---
+<p><strong>google一下snmp的漏洞,避免下载到未打补丁的版本<&#47;strong></p>
+<p>Net-SNMP远程绕过认证漏洞<br />
+受影响系统：<br />
+Net-SNMP net-snmp 5.4.x<br />
+Net-SNMP net-snmp 5.3.x<br />
+Net-SNMP net-snmp 5.2.x</p>
+<p>不受影响系统：<br />
+Net-SNMP net-snmp 5.4.1.1<br />
+Net-SNMP net-snmp 5.3.2.1<br />
+Net-SNMP net-snmp 5.2.4.1</p>
+<p><strong>检查有无安装snmp<&#47;strong></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">rpm -qa|grep snmp<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><a id="more"></a><a id="more-644"></a><br />
+<strong>下载net-snmp<&#47;strong><br />
+http:&#47;&#47;www.net-snmp.org&#47;download.html<br />
+http:&#47;&#47;nchc.dl.sourceforge.net&#47;sourceforge&#47;net-snmp&#47;net-snmp-5.4.2.1-1.f9.i386.rpm<br />
+http:&#47;&#47;nchc.dl.sourceforge.net&#47;sourceforge&#47;net-snmp&#47;net-snmp-devel-5.4.2.1-1.f9.i386.rpm<br />
+http:&#47;&#47;nchc.dl.sourceforge.net&#47;sourceforge&#47;net-snmp&#47;net-snmp-perlmods-5.4.2.1-1.f9.i386.rpm</p>
+<p><strong>安装snmp<&#47;strong></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">rpm -ivh net-snmp-*.rpm<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+error: Failed dependencies:<br />
+libc.so.6(GLIBC_2.4) is needed by net-snmp-5.4.2.1-1.i386<br />
+libc.so.6(GLIBC_2.7) is needed by net-snmp-5.4.2.1-1.i386<br />
+librpm-4.4.so is needed by net-snmp-5.4.2.1-1.i386<br />
+librpmio-4.4.so is needed by net-snmp-5.4.2.1-1.i386</p>
+<p><strong>检查glib版本<&#47;strong></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">rpm -qa | grep glibc<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+glibc-2.3.4-2<br />
+glibc-common-2.3.4-2<br />
+glibc-kernheaders-2.4-9.1.87<br />
+glibc-devel-2.3.4-2<br />
+glibc-headers-2.3.4-2</p>
+<p><strong>glibc升级风险比较大，改用soure编译<&#47;strong></p>
+<p><strong>先安装beecrypt<&#47;strong></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">wget http:&#47;&#47;downloads.sourceforge.net&#47;beecrypt&#47;beecrypt-4.1.2.tar.gz<&#47;li>
+<li>tar zxvf beecrypt-4.1.2.tar.gz<&#47;li>
+<li>cd beecrypt-4.1.2<&#47;li>
+<li>.&#47;configure --prefix=&#47;usr<&#47;li>
+<li>make<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+_bc-py.c:8:20: Python.h: No such file or directory</p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">rpm -qa|grep python<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+rpm-python-4.3.3-18_nonptl<br />
+gnome-python2-bonobo-2.6.0-3<br />
+python-2.3.4-14.2<br />
+libxml2-python-2.6.16-6<br />
+python-elementtree-1.2.6-4.2.1<br />
+python-sqlite-1.1.7-1.2<br />
+gnome-python2-2.6.0-3<br />
+gnome-python2-canvas-2.6.0-3<br />
+mod_python-3.1.3-5.1<br />
+dbus-python-0.22-12.EL.7<br />
+MySQL-python-1.0.0-1.RHEL4.1<br />
+python-urlgrabber-2.9.8-2</p>
+<p>没有python-devel,升级下python<br />
+<a href="http:&#47;&#47;blog.c1gstudio.com&#47;archives&#47;588"><span style="color: #0061a1;">http:&#47;&#47;blog.c1gstudio.com&#47;archives&#47;588<&#47;span><&#47;a></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">重新make<&#47;li>
+<li>make<&#47;li>
+<li>make install<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+更新动态库</p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">ldconfig -v<&#47;li>
+<li>ln -s &#47;lib&#47;libelf.so.1 &#47;usr&#47;lib&#47;libelf.so<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+<strong>安装net-snmp<&#47;strong></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">wget http:&#47;&#47;nchc.dl.sourceforge.net&#47;sourceforge&#47;net-snmp&#47;net-snmp-5.4.2.1.tar.gz<&#47;li>
+<li>tar zxvf net-snmp-5.4.2.1.tar.gz<&#47;li>
+<li>cd net-snmp-5.4.2.1<&#47;li>
+<li>.&#47;configure -enable-mfd-rewrites -with-default-snmp-version="2" -with-sys-contact="admin" -with-sys-location="China" -with-logfile="&#47;var&#47;log&#47;snmpd.log" -with-persistent-directory="&#47;var&#47;net-snmp"<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+<strong>编译的输出<&#47;strong></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">SNMP Versions Supported: 1 2c 3<&#47;li>
+<li>Net-SNMP Version: 5.4.2.1<&#47;li>
+<li>Building for: linux<&#47;li>
+<li>Network transport support: Callback Unix TCP UDP<&#47;li>
+<li>SNMPv3 Security Modules: usm<&#47;li>
+<li>Agent MIB code: default_modules =&amp;gt; snmpv3mibs mibII ucd_snmp notification notification-log-mib target agent_mibs agentx disman&#47;event disman&#47;schedule utilities host<&#47;li>
+<li>Embedded Perl support: enabled<&#47;li>
+<li>SNMP Perl modules: building -- embeddable<&#47;li>
+<li>SNMP Python modules: disabled<&#47;li>
+<li>Authentication support: MD5 SHA1<&#47;li>
+<li>Encryption support: DES AES<&#47;li><br />
+<&#47;ol><br />
+<&#47;div></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">make<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+<strong>安装出错<&#47;strong></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">grep: &#47;usr&#47;lib&#47;libbeecrypt.la: No such file or directory<&#47;li>
+<li>&#47;bin&#47;sed: can't read &#47;usr&#47;lib&#47;libbeecrypt.la: No such file or directory<&#47;li>
+<li>libtool: link: `&#47;usr&#47;lib&#47;libbeecrypt.la' is not a valid libtool archive<&#47;li>
+<li>#请安装beecrypt<&#47;li><br />
+<&#47;ol><br />
+<&#47;div></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">&#47;usr&#47;bin&#47;ld: cannot find -lelf<&#47;li>
+<li>collect2: ld returned 1 exit status<&#47;li>
+<li>#ln -s libelf.so.1 &#47;usr&#47;lib&#47;libelf.so<&#47;li><br />
+<&#47;ol><br />
+<&#47;div></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">make install<&#47;li>
+<li>ldconfig -v<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+<strong>community string<&#47;strong><br />
+网络设备在使用SNMP中都设有community string，它类似于简单的口令验证机制，用来确认是否具有可读或读写的权限。许多用户在购买设备以来，从未修改系统缺省的community string，因此非授权用户使用缺省口令就可以对重要的系统信息、设备的状态等进行修改。<br />
+将"COMMUNITY"字段改为你要设置的密码.比如"public"或privatepass.<br />
+将&ldquo;localhost&rdquo;改为你想哪台机器可以看到你的snmp信息,如localhost或10.10.10.10。</p>
+<p><strong>SNMP的版本<&#47;strong><br />
+在SNMP协议得益于重大升级，因为在1988年推出。<br />
+不幸的是，很大比例的网络内容供应商，甚至一些网络管理系统厂商都没有利用这些改进。<br />
+许多网络元素只支持SNMPv1和SNMPv2c 。 支持SNMPv3的是最小的。<br />
+版本 描述<br />
+SNMPv1 SNMPv1 ，其中实施以社区为基础的安全<br />
+SNMPv2c SNMPv2以社区为基础的安全<br />
+SNMPv2u SNMPv2与基于用户的安全<br />
+SNMPv2 SNMPv2党为基础的安全<br />
+SNMPv3安全机制 SNMPv3安全机制，而实现基于用户的安全</p>
+<p><strong>配置snmp<&#47;strong></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">mkdir &#47;usr&#47;local&#47;etc&#47;snmp<&#47;li>
+<li>cp EXAMPLE.conf &#47;usr&#47;local&#47;etc&#47;snmp&#47;snmpd.conf<&#47;li>
+<li>vi usr&#47;local&#47;etc&#47;snmp&#47;snmpd.conf<&#47;li><br />
+<&#47;ol><br />
+<&#47;div></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline"># sec.name source community<&#47;li>
+<li>com2sec local localhost privatepass<&#47;li>
+<li>#com2sec mynetwork NETWORK&#47;24 public<&#47;li>
+<li>&nbsp;<&#47;li>
+<li>####<&#47;li>
+<li># Second, map the security names into group names:<&#47;li>
+<li>&nbsp;<&#47;li>
+<li># sec.model sec.name<&#47;li>
+<li>#group MyRWGroup v1 local<&#47;li>
+<li>#group MyRWGroup v2c local<&#47;li>
+<li>#group MyRWGroup usm local<&#47;li>
+<li>#group MyROGroup v1 mynetwork<&#47;li>
+<li>#group MyROGroup v2c mynetwork<&#47;li>
+<li>#group MyROGroup usm mynetwork<&#47;li>
+<li>&nbsp;<&#47;li>
+<li>group MyROGroup v1 local<&#47;li>
+<li>group MyROGroup v2c local<&#47;li>
+<li>&nbsp;<&#47;li>
+<li>####<&#47;li>
+<li># Third, create a view for us to let the groups have rights to:<&#47;li>
+<li>&nbsp;<&#47;li>
+<li># incl&#47;excl subtree mask<&#47;li>
+<li>#view all included .1 80<&#47;li>
+<li>&nbsp;<&#47;li>
+<li>view mib2 included .iso.org.dod.internet.mgmt.mib-2 fc<&#47;li>
+<li>&nbsp;<&#47;li>
+<li>####<&#47;li>
+<li># Finally, grant the 2 groups access to the 1 view with different<&#47;li>
+<li># write permissions:<&#47;li>
+<li>&nbsp;<&#47;li>
+<li># context sec.model sec.level match read write notif<&#47;li>
+<li>access MyROGroup "" any noauth exact mib2 none none<&#47;li>
+<li>#access MyRWGroup "" any noauth exact all all none<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+&nbsp;</p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">#启动<&#47;li>
+<li>&#47;usr&#47;local&#47;sbin&#47;snmpd<&#47;li>
+<li>#加入启动<&#47;li>
+<li>echo '&#47;usr&#47;local&#47;sbin&#47;snmpd' >> &#47;etc&#47;rc.local<&#47;li>
+<li>#查看161端口是否开启<&#47;li>
+<li>netstat -ano|grep 161<&#47;li>
+<li>#测试<&#47;li>
+<li>snmpwalk -v 1 -c privatepass localhost system<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+SNMPv2-MIB::sysDescr.0 = STRING: Linux localhost.localdomain 2.6.9-5.ELsmp #1 SMP Wed Jan 5 19:30:39 EST 2005 i686<br />
+SNMPv2-MIB::sysObjectID.0 = OID: NET-SNMP-MIB::netSnmpAgentOIDs.10<br />
+DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (2612) 0:00:26.12<br />
+SNMPv2-MIB::sysContact.0 = STRING: Me<br />
+SNMPv2-MIB::sysName.0 = STRING: localhost.localdomain<br />
+SNMPv2-MIB::sysLocation.0 = STRING: Right here, right now.<br />
+SNMPv2-MIB::sysORLastChange.0 = Timeticks: (0) 0:00:00.00<br />
+SNMPv2-MIB::sysORID.1 = OID: SNMP-FRAMEWORK-MIB::snmpFrameworkMIBCompliance<br />
+SNMPv2-MIB::sysORID.2 = OID: SNMP-MPD-MIB::snmpMPDCompliance<br />
+SNMPv2-MIB::sysORID.3 = OID: SNMP-USER-BASED-SM-MIB::usmMIBCompliance<br />
+SNMPv2-MIB::sysORID.4 = OID: SNMPv2-MIB::snmpMIB<br />
+SNMPv2-MIB::sysORID.5 = OID: TCP-MIB::tcpMIB<br />
+SNMPv2-MIB::sysORID.6 = OID: IP-MIB::ip<br />
+SNMPv2-MIB::sysORID.7 = OID: UDP-MIB::udpMIB<br />
+SNMPv2-MIB::sysORID.8 = OID: SNMP-VIEW-BASED-ACM-MIB::vacmBasicGroup<br />
+SNMPv2-MIB::sysORDescr.1 = STRING: The SNMP Management Architecture MIB.<br />
+SNMPv2-MIB::sysORDescr.2 = STRING: The MIB for Message Processing and Dispatching.<br />
+SNMPv2-MIB::sysORDescr.3 = STRING: The management information definitions for the SNMP User-based Security Model.<br />
+SNMPv2-MIB::sysORDescr.4 = STRING: The MIB module for SNMPv2 entities<br />
+SNMPv2-MIB::sysORDescr.5 = STRING: The MIB module for managing TCP implementations<br />
+SNMPv2-MIB::sysORDescr.6 = STRING: The MIB module for managing IP and ICMP implementations<br />
+SNMPv2-MIB::sysORDescr.7 = STRING: The MIB module for managing UDP implementations<br />
+SNMPv2-MIB::sysORDescr.8 = STRING: View-based Access Control Model for SNMP.<br />
+SNMPv2-MIB::sysORUpTime.1 = Timeticks: (0) 0:00:00.00<br />
+SNMPv2-MIB::sysORUpTime.2 = Timeticks: (0) 0:00:00.00<br />
+SNMPv2-MIB::sysORUpTime.3 = Timeticks: (0) 0:00:00.00<br />
+SNMPv2-MIB::sysORUpTime.4 = Timeticks: (0) 0:00:00.00<br />
+SNMPv2-MIB::sysORUpTime.5 = Timeticks: (0) 0:00:00.00<br />
+SNMPv2-MIB::sysORUpTime.6 = Timeticks: (0) 0:00:00.00<br />
+SNMPv2-MIB::sysORUpTime.7 = Timeticks: (0) 0:00:00.00<br />
+SNMPv2-MIB::sysORUpTime.8 = Timeticks: (0) 0:00:00.00</p>
+<p>snmp安装完毕</p>
+<p><strong>安装check_traffic脚本<&#47;strong><br />
+下载check_traffic_v1.1.6.zip脚本<br />
+http:&#47;&#47;www.itnms.net&#47;discuz&#47;viewthread.php?tid=767&amp;extra=pageD1&amp;page=1<br />
+上传.&#47;check_traffic.sh 至&#47;usr&#47;local&#47;nagios&#47;libexec</p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">cd &#47;usr&#47;local&#47;nagios&#47;libexec&#47;<&#47;li>
+<li>chown nagios:nagios .&#47;check_traffic.sh<&#47;li>
+<li>chmod 755 .&#47;check_traffic.sh<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+用 -L选项列出对应主机所有的interface，来确定你要监控的网络接口（如果能你确认接口的index值，这一步可以省略）。<br />
+通过输出，我们确认要监控的网络接口为4，对应为"Macronix MX98715-Based Ethernet Adapter (Generic) - 数据包计划程序微型端口"</p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">.&#47;check_traffic.sh -V 2c -C privatepass -H localhost -L<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+List Interface for host localhost.<br />
+Interface index 1 orresponding to lo<br />
+Interface index 2 orresponding to eth0<br />
+Interface index 3 orresponding to eth1<br />
+Interface index 4 orresponding to sit0</p>
+<p>按照说明，选择版本为2c（一般选择1或者2c），community为privatepass，interface为2，单位为KB&#47;s，in流量对应warning&#47;critical值为200&#47;400，out流量对应warning&#47;critical值为300&#47;500.</p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">sudo -u nagios .&#47;check_traffic.sh -V 2c -C privatepass -H localhost -I 2 -w12,30 -c15,50 -K -b<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+Can not found data in the history data file.<br />
+If it's the first time for this plugins, that's OK.<br />
+Otherwise,please use debug mode and check the debug file.</p>
+<p>第一次执行，因为history data file不存在，因此会由此提示，可以忽略。<br />
+如果每次执行都忽略，则要检查&#47;var&#47;tmp下是否有&#47;var&#47;tmp&#47;check_traffic_${Host}_${Interface}.hist_dat文件生成。<br />
+文件的内容是系统当前的时间，in及out当前的数值。</p>
+<p><strong>nagios监控本机的配置<&#47;strong><br />
+<strong>修改&#47;usr&#47;local&#47;nagios&#47;etc&#47;objects&#47;commands.cfg，增下以下内容<&#47;strong></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">define command{<&#47;li>
+<li>command_name check_traffic_nv<&#47;li>
+<li>command_line $USER1$&#47;check_traffic.sh -V 2c -C privatepass -H localhost -I $ARG1$ -w $ARG2$ -c $ARG3$ -M -b<&#47;li>
+<li>}<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+<strong>修改&#47;usr&#47;local&#47;nagios&#47;etc&#47;objects&#47;localhost.cfg，增下以下内容<&#47;strong></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">define service{<&#47;li>
+<li>use local-service,srv-pnp ; Name of service template to use<&#47;li>
+<li>host_name nagios<&#47;li>
+<li>service_description check_nv_traffic_eth0<&#47;li>
+<li>check_command check_traffic_nv!2!12,30!15,35<&#47;li>
+<li>notifications_enabled 0<&#47;li>
+<li>normal_check_interval 5 ;5分钟<&#47;li>
+<li>retry_interval 1 ;1分钟<&#47;li>
+<li>}<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+&nbsp;<br />
+nagios监控远程机的配置</p>
+<p><strong>修改&#47;usr&#47;local&#47;nagios&#47;etc&#47;objects&#47;remotehost.cfg，增下以下内容<&#47;strong></p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">define service{<&#47;li>
+<li>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;use&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;local-service,srv-pnp&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;; Name of service template to use<&#47;li>
+<li>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;host_name&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;nagios<&#47;li>
+<li>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;service_description&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;check_nv_traffic_eth0<&#47;li>
+<li>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;check_command&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;check_nrpe!check_traffic_nv<&#47;li>
+<li>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;notifications_enabled&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0<&#47;li>
+<li>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;normal_check_interval&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;5&nbsp; ;5分钟<&#47;li>
+<li>retry_interval 1&nbsp; &nbsp;;1分钟<&#47;li>
+<li>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;}<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+修改&#47;usr&#47;local&#47;nagios&#47;etc&#47;nrpe.cfg增加以下内容</p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">command[check_traffic_nv]=&#47;usr&#47;local&#47;nagios&#47;libexec&#47;check_traffic_nv.sh -V 2c -C privatepass -H localhost -I 2 -w 12,30 -c 15,35 -M -b<&#47;li><br />
+<&#47;ol><br />
+<&#47;div><br />
+访问http:&#47;&#47;localhost&#47;nagios<br />
+点击Service Detail<br />
+点击check_nv_traffic_eth0服务旁的小太阳<br />
+等5分钟后就可以看到图表</p>
+<p>如果check_nv_traffic_eth0服务报找不到snmpwalk.</p>
+<div class="hl-surround">
+<ol class="hl-main ln-show" title="Double click to hide line number." ondblclick="linenumber(this)">
+<li class="hl-firstline">ln -s &#47;usr&#47;local&#47;bin&#47;snmpwalk &#47;usr&#47;bin&#47;snmpwalk<&#47;li><br />
+<&#47;ol><br />
+<&#47;div></p>

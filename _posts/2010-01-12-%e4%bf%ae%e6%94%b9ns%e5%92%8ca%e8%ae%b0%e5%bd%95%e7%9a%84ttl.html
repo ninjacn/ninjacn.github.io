@@ -1,0 +1,82 @@
+---
+layout: post
+status: publish
+published: true
+title: "修改NS和A记录的TTL"
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 864
+wordpress_url: http://ninjacn.com/?p=864
+date: '2010-01-12 12:07:00 +0800'
+date_gmt: '2010-01-12 04:07:00 +0800'
+categories:
+- Server
+tags:
+- bind
+- dns
+- ttl
+comments: []
+---
+<p>[cc lang="apache"]$TTL 86400<br />
+$ORIGIN test.cn.<br />
+@               IN      SOA     test.cn. root.test.cn. (<br />
+                                2009091142       ; Serial<br />
+                                28800   ; Refresh<br />
+                                7200    ; Retry<br />
+                                604800  ; Expire<br />
+                                86400)  ; Minimum TTL<br />
+                IN      NS      ns1.test.cn.<br />
+                IN      NS      ns2.test.cn.<br />
+ns1             IN      A               219.238.8.8<br />
+ns2             IN      A               219.238.8.8</p>
+<p>$TTL 600<br />
+                IN      MX      10      mx01.test.cn.<br />
+@                IN      A               219.238.8.8</p>
+<p>smtp            IN      A               219.238.8.8<br />
+mail            IN      A               219.238.8.8[&#47;cc]<br />
+以上代码添加两个@TTL可将NS记录和其它（A,MX,CNAME等）TTL分开。</p>
+<p>继续查看<br />
+[cc lang="apache"][root@dnsa ~]# dig -t NS test.cn</p>
+<p>; <<>> DiG 9.5.1-P3 <<>> -t NS test.cn<br />
+;; global options:  printcmd<br />
+;; Got answer:<br />
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 8037<br />
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 3</p>
+<p>;; QUESTION SECTION:<br />
+;test.cn.			IN	NS</p>
+<p>;; ANSWER SECTION:<br />
+test.cn.		86400	IN	NS	ns1.test.cn.<br />
+test.cn.		86400	IN	NS	ns2.test.cn.</p>
+<p>;; ADDITIONAL SECTION:<br />
+ns1.test.cn.		86400	IN	A	219.238.8.8<br />
+ns2.test.cn.		86400	IN	A	219.238.8.8</p>
+<p>;; Query time: 1 msec<br />
+;; SERVER: 127.0.0.1#53(127.0.0.1)<br />
+;; WHEN: Tue Jan 12 11:55:38 2010<br />
+;; MSG SIZE  rcvd: 109</p>
+<p>[root@dnsa ~]# dig -t A mail.test.cn</p>
+<p>; <<>> DiG 9.5.1-P3 <<>> -t A mail.test.cn<br />
+;; global options:  printcmd<br />
+;; Got answer:<br />
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 37054<br />
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 2, ADDITIONAL: 2</p>
+<p>;; QUESTION SECTION:<br />
+;mail.test.cn.			IN	A</p>
+<p>;; ANSWER SECTION:<br />
+mail.test.cn.		600	IN	A	219.238.8.8</p>
+<p>;; AUTHORITY SECTION:<br />
+test.cn.		86400	IN	NS	ns2.test.cn.<br />
+test.cn.		86400	IN	NS	ns1.test.cn.</p>
+<p>;; ADDITIONAL SECTION:<br />
+ns1.test.cn.		86400	IN	A	219.238.8.8<br />
+ns2.test.cn.		86400	IN	A	219.238.8.8</p>
+<p>;; Query time: 0 msec<br />
+;; SERVER: 127.0.0.1#53(127.0.0.1)<br />
+;; WHEN: Tue Jan 12 12:04:06 2010<br />
+;; MSG SIZE  rcvd: 114[&#47;cc]<br />
+域名ns记录TTL为86400，MAIL主机A记录为600</p>

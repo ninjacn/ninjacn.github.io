@@ -1,0 +1,205 @@
+---
+layout: post
+status: publish
+published: true
+title: Nginx+Keepalived主备方案
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 968
+wordpress_url: http://ninjacn.com/?p=968
+date: '2013-02-28 16:13:06 +0800'
+date_gmt: '2013-02-28 08:13:06 +0800'
+categories:
+- System
+tags:
+- nginx
+- keepalived
+comments: []
+---
+<p><img class="alignnone size-full wp-image-969" title="nginx+keepalived" alt="" src="http:&#47;&#47;ninjacn.com&#47;&#47;wp-content&#47;uploads&#47;2013&#47;02&#47;nginx+keepalived.png" width="826" height="464" &#47;></p>
+<p>一、此方案解决的问题</p>
+<p>1、当内外网卡其中任意一个出现异常时，切换<span style="font-family: 'Times New Roman';">VIP<&#47;span><span style="font-family: 宋体;">。<&#47;span></p>
+<p>2、当目前服务的<span style="font-family: 'Times New Roman';">nginx<&#47;span><span style="font-family: 宋体;">出现无法访问时，切换<&#47;span><span style="font-family: 'Times New Roman';">VIP<&#47;span><span style="font-family: 宋体;">。<&#47;span></p>
+<p>二、环境说明</p>
+<p>1、操作系统：<span style="font-family: 'Times New Roman';">CentOS&nbsp;5<&#47;span></p>
+<p>2、网络：每台服务器都有两个网卡，外网和内网。<span style="font-family: 'Times New Roman';">NGINX<&#47;span><span style="font-family: 宋体;">使用两个网卡，后端应用服务器（<&#47;span><span style="font-family: 'Times New Roman';">resin<&#47;span><span style="font-family: 宋体;">）只使用一个内网卡。<&#47;span></p>
+<p>3、Nginx<span style="font-family: 宋体;">功能主要做反向代理。<&#47;span></p>
+<p>4、应用服务器<span style="font-family: 'Times New Roman';">(resin)<&#47;span><span style="font-family: 宋体;">主要提供应用服务，还有一个用于检测可用性的<&#47;span><span style="font-family: 'Times New Roman';">URL<&#47;span><span style="font-family: 宋体;">。目前是<&#47;span><span style="font-family: 'Times New Roman';">&#47;alive.jsp<&#47;span><span style="font-family: 宋体;">。<&#47;span></p>
+<p>5、IP<span style="font-family: 宋体;">如下：<&#47;span></p>
+<p>5.1<span style="font-family: 宋体;">、<&#47;span><span style="font-family: 'Times New Roman';">VIP<&#47;span><span style="font-family: 宋体;">：<&#47;span>120.120.120.77</p>
+<p>5.2<span style="font-family: 宋体;">、<&#47;span><span style="font-family: 'Times New Roman';">NGINX<&#47;span><span style="font-family: 宋体;">（<&#47;span><span style="font-family: 'Times New Roman';">MASTER<&#47;span><span style="font-family: 宋体;">）<&#47;span><span style="font-family: 'Times New Roman';">:<&#47;span>120.120.120.78(eth0),10.13.20.2(eth1)</p>
+<p>5.3<span style="font-family: 宋体;">、<&#47;span><span style="font-family: 'Times New Roman';">NGINX<&#47;span><span style="font-family: 宋体;">（<&#47;span><span style="font-family: 'Times New Roman';">BACKUP<&#47;span><span style="font-family: 宋体;">）<&#47;span><span style="font-family: 'Times New Roman';">:<&#47;span>120.120.120.79(eth0),10.13.20.3(eth1)</p>
+<p>三、检测脚本</p>
+<p>1、用于检测<span style="font-family: 'Times New Roman';">NGINX<&#47;span><span style="font-family: 宋体;">是否可用，如下：<&#47;span></p>
+<p>[bash]<br />
+#!&#47;bin&#47;bash<br />
+# ming 2&#47;28&#47;2013</p>
+<p>URL="http:&#47;&#47;localhost&#47;alive.jsp"</p>
+<p>status=`&#47;usr&#47;bin&#47;curl -s $URL|tr -d ' '`<br />
+if [ "$status" == 'ok' ];then<br />
+        exit 0<br />
+else<br />
+        exit 1<br />
+fi<br />
+[&#47;bash]</p>
+<p>脚本说明：</p>
+<p>1、此脚本获取http:&#47;&#47;localhost&#47;alive.jsp这个URL<span style="font-family: 宋体;">的<&#47;span><span style="font-family: 'Times New Roman';">body<&#47;span><span style="font-family: 宋体;">，检测返回的是不是&ldquo;<&#47;span><span style="font-family: 'Times New Roman';">ok<&#47;span><span style="font-family: 宋体;">&rdquo;，正常（<&#47;span><span style="font-family: 'Times New Roman';">0<&#47;span><span style="font-family: 宋体;">），否则返回异常（<&#47;span><span style="font-family: 'Times New Roman';">1<&#47;span><span style="font-family: 宋体;">）<&#47;span><span style="font-family: 'Times New Roman';">;<&#47;span></p>
+<p>2、&#47;alive.jsp<span style="font-family: 宋体;">根据自身应用调整，这个<&#47;span><span style="font-family: 'Times New Roman';">URL<&#47;span><span style="font-family: 宋体;">是穿透<&#47;span><span style="font-family: 'Times New Roman';">nginx<&#47;span><span style="font-family: 宋体;">，直接向后端请求的。<&#47;span></p>
+<p>3、为了保障高可用，<span style="font-family: 'Times New Roman';">nginx<&#47;span><span style="font-family: 宋体;">要做相关调整。下面我附上部分配置。<&#47;span></p>
+<p>附：检测后端输出结果<br />
+[bash]<br />
+curl&nbsp;http:&#47;&#47;10.13.20.22:8080&#47;alive.jsp<br />
+ok<br />
+[&#47;bash]</p>
+<p>四、Nginx<span style="font-family: 宋体;">配置如下<&#47;span><span style="font-family: 'Times New Roman';">(<&#47;span><span style="font-family: 宋体;">注意红色字体<&#47;span><span style="font-family: 'Times New Roman';">)<&#47;span><span style="font-family: 宋体;">：<&#47;span></p>
+<p>[bash]<br />
+user&nbsp;&nbsp;nginx&nbsp;nginx;</p>
+<p>worker_processes&nbsp;6;</p>
+<p>error_log&nbsp;&nbsp;&#47;var&#47;log&#47;nginx&#47;error.log&nbsp;&nbsp;notice;</p>
+<p>#pid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logs&#47;nginx.pid;</p>
+<p>worker_rlimit_nofile&nbsp;65535;</p>
+<p>events</p>
+<p>{</p>
+<p>use&nbsp;epoll;</p>
+<p>worker_connections&nbsp;65535;</p>
+<p>}</p>
+<p>http</p>
+<p>{</p>
+<p>include&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mime.types;</p>
+<p>default_type&nbsp;&nbsp;application&#47;octet-stream;</p>
+<p>charset&nbsp;&nbsp;utf-8;</p>
+<p>server_names_hash_bucket_size&nbsp;128;</p>
+<p>client_header_buffer_size&nbsp;32k;</p>
+<p>large_client_header_buffers&nbsp;4&nbsp;64k;</p>
+<p>client_max_body_size&nbsp;10m;</p>
+<p>sendfile&nbsp;on;</p>
+<p>tcp_nopush&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on;</p>
+<p>keepalive_timeout&nbsp;60;</p>
+<p>tcp_nodelay&nbsp;on;</p>
+<p>server_tokens&nbsp;off;</p>
+<p>proxy_set_header&nbsp;Host&nbsp;&nbsp;$host;</p>
+<p>proxy_set_header&nbsp;X-Forwarded-For&nbsp;&nbsp;$remote_addr;</p>
+<p>proxy_connect_timeout&nbsp;2s;</p>
+<p>proxy_read_timeout&nbsp;2s;</p>
+<p>proxy_send_timeout&nbsp;2s;</p>
+<p>client_body_buffer_size&nbsp;256k;</p>
+<p>proxy_buffer_size&nbsp;256k;</p>
+<p>proxy_buffers&nbsp;4&nbsp;256k;</p>
+<p>proxy_busy_buffers_size&nbsp;256k;</p>
+<p>proxy_temp_file_write_size&nbsp;256k;</p>
+<p>proxy_max_temp_file_size&nbsp;128m;</p>
+<p>gzip&nbsp;on;</p>
+<p>gzip_min_length&nbsp;&nbsp;1k;</p>
+<p>gzip_buffers&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;16k;</p>
+<p>gzip_http_version&nbsp;1.1;</p>
+<p>gzip_comp_level&nbsp;7;</p>
+<p>gzip_types&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&#47;plain&nbsp;application&#47;x-javascript&nbsp;text&#47;css&nbsp;application&#47;xml;</p>
+<p>gzip_vary&nbsp;on;</p>
+<p>upstream&nbsp;backend&nbsp;{</p>
+<p>server&nbsp;&nbsp;&nbsp;10.13.20.22:8080&nbsp;max_fails=2&nbsp;fail_timeout=2s;</p>
+<p>server&nbsp;&nbsp;&nbsp;10.13.20.23:8080&nbsp;max_fails=2&nbsp;fail_timeout=2s;</p>
+<p>}</p>
+<p>server&nbsp;{</p>
+<p>listen&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;80;</p>
+<p>server_name&nbsp;&nbsp;localhost;</p>
+<p>root&nbsp;html;</p>
+<p>index&nbsp;index.html;</p>
+<p>location&nbsp;&#47;&nbsp;{</p>
+<p>proxy_pass&nbsp;http:&#47;&#47;backend;</p>
+<p>proxy_next_upstream&nbsp;error&nbsp;timeout&nbsp;http_500&nbsp;http_502&nbsp;http_503&nbsp;http_504;</p>
+<p>}</p>
+<p>log_format&nbsp;&nbsp;main&nbsp;&nbsp;'$remote_addr&nbsp;-&nbsp;$remote_user&nbsp;[$time_local]&nbsp;"$request"&nbsp;'</p>
+<p>'$status&nbsp;$body_bytes_sent&nbsp;"$http_referer"&nbsp;'</p>
+<p>'"$http_user_agent"&nbsp;"$http_x_forwarded_for"';</p>
+<p>access_log&nbsp;&nbsp;&#47;var&#47;log&#47;nginx&#47;access.log&nbsp;&nbsp;main&nbsp;buffer=32k;</p>
+<p>}</p>
+<p>}<br />
+[&#47;bash]</p>
+<p>五、Keepalived<span style="font-family: 宋体;">配置<&#47;span></p>
+<p>1、MASTER</p>
+<p>[bash]<br />
+!&nbsp;Configuration&nbsp;File&nbsp;for&nbsp;keepalived</p>
+<p>global_defs&nbsp;{</p>
+<p>router_id&nbsp;mspush_nginx_master_120.120.120.78</p>
+<p>notification_email&nbsp;{</p>
+<p>x@ninjacn.com</p>
+<p>}</p>
+<p>notification_email_from&nbsp;applvs@staff.test.com</p>
+<p>smtp_server&nbsp;10.0.0.1</p>
+<p>smtp_connect_timeout&nbsp;30</p>
+<p>}</p>
+<p>vrrp_script&nbsp;chk_nginx&nbsp;{</p>
+<p>script&nbsp;"&#47;usr&#47;local&#47;bin&#47;check_nginx.sh"</p>
+<p>interval&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;check&nbsp;every&nbsp;2&nbsp;seconds</p>
+<p>fall&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;require&nbsp;2&nbsp;failures&nbsp;for&nbsp;KO</p>
+<p>rise&nbsp;3</p>
+<p>}</p>
+<p>vrrp_instance&nbsp;mspush_cm&nbsp;{</p>
+<p>interface&nbsp;eth0</p>
+<p>state&nbsp;MASTER</p>
+<p>virtual_router_id&nbsp;110</p>
+<p>priority&nbsp;200</p>
+<p>smtp_alert</p>
+<p>track_interface&nbsp;{</p>
+<p>eth0</p>
+<p>eth1</p>
+<p>}</p>
+<p>track_script&nbsp;{</p>
+<p>chk_nginx</p>
+<p>}</p>
+<p>authentication&nbsp;{</p>
+<p>auth_type&nbsp;PASS</p>
+<p>auth_pass&nbsp;mspush</p>
+<p>}</p>
+<p>virtual_ipaddress&nbsp;{</p>
+<p>120.120.120.77</p>
+<p>}</p>
+<p>}<br />
+[&#47;bash]</p>
+<p>2、BACKUP</p>
+<p>[bash]<br />
+!&nbsp;Configuration&nbsp;File&nbsp;for&nbsp;keepalived</p>
+<p>global_defs&nbsp;{</p>
+<p>router_id&nbsp;mspush_nginx_backup_120.120.120.79</p>
+<p>notification_email&nbsp;{</p>
+<p>x@ninjacn.com</p>
+<p>}</p>
+<p>notification_email_from&nbsp;applvs@staff.easou.com</p>
+<p>smtp_server&nbsp;10.0.0.1</p>
+<p>smtp_connect_timeout&nbsp;30</p>
+<p>}</p>
+<p>vrrp_script&nbsp;chk_nginx&nbsp;{</p>
+<p>script&nbsp;"&#47;usr&#47;local&#47;bin&#47;check_nginx.sh"</p>
+<p>interval&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;check&nbsp;every&nbsp;2&nbsp;seconds</p>
+<p>fall&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;require&nbsp;2&nbsp;failures&nbsp;for&nbsp;KO</p>
+<p>rise&nbsp;3</p>
+<p>}</p>
+<p>vrrp_instance&nbsp;mspush_cm&nbsp;{</p>
+<p>interface&nbsp;eth0</p>
+<p>state&nbsp;BACKUP</p>
+<p>virtual_router_id&nbsp;110</p>
+<p>priority&nbsp;100</p>
+<p>smtp_alert</p>
+<p>track_interface&nbsp;{</p>
+<p>eth0</p>
+<p>eth1</p>
+<p>}</p>
+<p>track_script&nbsp;{</p>
+<p>chk_nginx</p>
+<p>}</p>
+<p>authentication&nbsp;{</p>
+<p>auth_type&nbsp;PASS</p>
+<p>auth_pass&nbsp;mspush</p>
+<p>}</p>
+<p>virtual_ipaddress&nbsp;{</p>
+<p>120.120.120.77</p>
+<p>}</p>
+<p>}<br />
+[&#47;bash]</p>
+<p><a href="http:&#47;&#47;ninjacn.com&#47;&#47;wp-content&#47;uploads&#47;2013&#47;02&#47;keepalived+nginx双机热备.pdf">keepalived+nginx双机热备PDF版本下载<&#47;a></p>
+<p><a href="http:&#47;&#47;ninjacn.com&#47;&#47;wp-content&#47;uploads&#47;2013&#47;02&#47;keepalived+nginx双机热备-21.pdf">keepalived+nginx双机热备v2 PDF版本下载<&#47;a></p>

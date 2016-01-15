@@ -1,0 +1,109 @@
+---
+layout: post
+status: publish
+published: true
+title: mysql主从配置
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 839
+wordpress_url: http://ninjacn.com/?p=839
+date: '2010-01-05 17:30:10 +0800'
+date_gmt: '2010-01-05 09:30:10 +0800'
+categories:
+- DB
+tags:
+- mysql
+- "复制"
+- "主从"
+comments: []
+---
+<p>环境：CentOS 5.3 MYSQL 5.0.84</p>
+<p>主服务器:node1&nbsp; IP:192.168.1.10</p>
+<p>从服务器：node1_0 IP:192.168.1.20</p>
+<p>一. MySQL主服务器配置<br />
+1.建立用户<br />
+grant replication slave on *.* to <a href="mailto:repluser@192.168.1.20">repluser@192.168.1.20<&#47;a> identified by &lsquo;123456&prime;;</p>
+<p>2.编辑配置文件&#47;etc&#47;my.cnf<br />
+# 确保有如下行<br />
+server-id = 1<br />
+log-bin=mysql-bin<br />
+binlog-ignore-db=mysql<br />
+#binlog-do-db=需要备份的数据库名，可写多行<br />
+#binlog-ignore-db=不需要备份的数据库名，可写多行</p>
+<p>二.MySQL从服务器配置<br />
+1.编辑&#47;etc&#47;my.cnf<br />
+server-id=2<br />
+log-bin=mysql-bin<br />
+master-host=192.168.1.10<br />
+master-user=repluser<br />
+master-password=12345<br />
+#master-port=3306<br />
+#replicate-do-db=test<br />
+# replicate-do-db=test&nbsp; 需要备份的数据库名<br />
+# replicate-ignore-db=mysql 忽略的数据库<br />
+# master-connect-retry=60 如果从服务器发现主服务器断掉，重新连接的时间差(秒)</p>
+<p><span style="color: #ff0000;">记得先手动同步一下主从服务器中要备份的数据库，然后重启主，从服务器。<&#47;span></p>
+<p><span style="color: #000000;">三、验证<&#47;span></p>
+<p>在主服务器运行，mysql>show master status\G;</p>
+<p>在从服务器运行，mysql>show slave status\G;</p>
+<p>&nbsp;</p>
+<p>登录主服务器查看线程</p>
+<p>mysql> show processlist \G;<br />
+*************************** 1. row ***************************<br />
+&nbsp;&nbsp;&nbsp;&nbsp; Id: 2<br />
+&nbsp;&nbsp; User: root<br />
+&nbsp;&nbsp; Host: localhost<br />
+&nbsp;&nbsp;&nbsp;&nbsp; db: test<br />
+Command: Query<br />
+&nbsp;&nbsp; Time: 0<br />
+&nbsp; State: NULL<br />
+&nbsp;&nbsp; Info: show processlist<br />
+*************************** 2. row ***************************<br />
+&nbsp;&nbsp;&nbsp;&nbsp; Id: 13<br />
+&nbsp;&nbsp; User: repluser<br />
+&nbsp;&nbsp; Host: 192.168.1.20:54600<br />
+&nbsp;&nbsp;&nbsp;&nbsp; db: NULL<br />
+Command: Binlog Dump<br />
+&nbsp;&nbsp; Time: 2943<br />
+&nbsp; State: Has sent all binlog to slave; waiting for binlog to be updated<br />
+&nbsp;&nbsp; Info: NULL<br />
+2 rows in set (0.00 sec)</p>
+<p>ERROR:<br />
+No query specified</p>
+<p>登录从服务器查看线程</p>
+<p>mysql> show processlist \G;<br />
+*************************** 1. row ***************************<br />
+&nbsp;&nbsp;&nbsp;&nbsp; Id: 3<br />
+&nbsp;&nbsp; User: root<br />
+&nbsp;&nbsp; Host: localhost<br />
+&nbsp;&nbsp;&nbsp;&nbsp; db: test<br />
+Command: Query<br />
+&nbsp;&nbsp; Time: 0<br />
+&nbsp; State: NULL<br />
+&nbsp;&nbsp; Info: show processlist<br />
+*************************** 2. row ***************************<br />
+&nbsp;&nbsp;&nbsp;&nbsp; Id: 4<br />
+&nbsp;&nbsp; User: system user<br />
+&nbsp;&nbsp; Host:<br />
+&nbsp;&nbsp;&nbsp;&nbsp; db: NULL<br />
+Command: Connect<br />
+&nbsp;&nbsp; Time: 19800<br />
+&nbsp; State: Waiting for master to send event<br />
+&nbsp;&nbsp; Info: NULL<br />
+*************************** 3. row ***************************<br />
+&nbsp;&nbsp;&nbsp;&nbsp; Id: 5<br />
+&nbsp;&nbsp; User: system user<br />
+&nbsp;&nbsp; Host:<br />
+&nbsp;&nbsp;&nbsp;&nbsp; db: NULL<br />
+Command: Connect<br />
+&nbsp;&nbsp; Time: 17322<br />
+&nbsp; State: Has read all relay log; waiting for the slave I&#47;O thread to update it<br />
+&nbsp;&nbsp; Info: NULL<br />
+3 rows in set (0.00 sec)</p>
+<p>ERROR:<br />
+No query specified</p>

@@ -1,0 +1,42 @@
+---
+layout: post
+status: publish
+published: true
+title: "编译moosefs错误，checking for FUSE... no"
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 943
+wordpress_url: http://ninjacn.com/?p=943
+date: '2011-03-01 16:29:46 +0800'
+date_gmt: '2011-03-01 08:29:46 +0800'
+categories:
+- Server
+tags:
+- fuse
+- mfs
+comments:
+- id: 324
+  author: "淘宝女装"
+  author_email: cc1551@qq.com
+  author_url: http://www.huanghelingtuji.com
+  date: '2011-03-02 10:21:23 +0800'
+  date_gmt: '2011-03-02 02:21:23 +0800'
+  content: "两个字 有才"
+---
+<p>fuse安装<br />
+[cc lang="bash"].&#47;configure --prefix=&#47;opt&#47;fuse --mandir=&#47;usr&#47;share&#47;man<br />
+make && make install[&#47;cc]</p>
+<p>编译moosefs<br />
+[cc lang="bash"].&#47;configure --prefix=&#47;opt&#47;mfs --disable-mfsmaster --disable-mfschunkserver[&#47;cc]<br />
+提示错误，checking for FUSE... no</p>
+<p>解决：<br />
+执行命令：<br />
+[cc lang="bash"]export PKG_CONFIG_PATH=&#47;opt&#47;fuse&#47;lib&#47;pkgconfig:$PKG_CONFIG_PATH[&#47;cc]<br />
+完后再重新编译<br />
+make clean<br />
+.&#47;configure</p>

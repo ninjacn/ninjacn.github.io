@@ -1,0 +1,56 @@
+---
+layout: post
+status: publish
+published: true
+title: AE_NOT_FOUND, Processor Device is not present
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 807
+wordpress_url: http://ninjacn.com/?p=807
+date: '2009-12-08 16:56:39 +0800'
+date_gmt: '2009-12-08 08:56:39 +0800'
+categories:
+- System
+tags: []
+comments: []
+---
+<p>今天给IPTABLES编译connlimit模块，需要重新编译内核（2.6.18），在测试机（虚拟机）上测试后一切正常，今天放在生产机上，结果启动不起来了（系统启动起来了，网卡没启用）。<br />
+没办法，只能重新更新网卡驱动。<br />
+错误提示如下：<br />
+ACPI Exception (acpi_processor-0681): AE_NOT_FOUND, Processor Device is not present</p>
+<p>首先下载驱动<br />
+wget http:&#47;&#47;www.broadcom.com&#47;docs&#47;driver_download&#47;NXII&#47;linux-1.9.20b_1.50.13.zip<br />
+安装时我用源码安装的<br />
+[cc lang="bash"]make<br />
+make install[&#47;cc]就可以了，这个驱动安装在了&#47;lib&#47;modules&#47;2.6.18&#47;updates&#47;bnx2.ko<br />
+第一次加载模块命令<br />
+[cc lang="bash"]insmod &#47;lib&#47;modules&#47;2.6.18&#47;updates&#47;bnx2.ko[&#47;cc]</p>
+<p>[cc lang="bash"]lsmod|grep bnx[&#47;cc]<br />
+可以看到这个模块已经加载上了</p>
+<p>查看该模块信息<br />
+[cc lang="bash"][root@web02 ~]# modinfo bnx2<br />
+filename:       &#47;lib&#47;modules&#47;2.6.18&#47;updates&#47;bnx2.ko<br />
+version:        1.9.20b<br />
+license:        GPL<br />
+description:    Broadcom NetXtreme II BCM5706&#47;5708&#47;5709&#47;5716 Driver<br />
+author:         Michael Chan <mchan@broadcom.com><br />
+srcversion:     824BF2D5650956C545AC5BD<br />
+alias:          pci:v000014E4d0000163Csv*sd*bc*sc*i*<br />
+alias:          pci:v000014E4d0000163Bsv*sd*bc*sc*i*<br />
+alias:          pci:v000014E4d0000163Asv*sd*bc*sc*i*<br />
+alias:          pci:v000014E4d00001639sv*sd*bc*sc*i*<br />
+alias:          pci:v000014E4d000016ACsv*sd*bc*sc*i*<br />
+alias:          pci:v000014E4d000016AAsv*sd*bc*sc*i*<br />
+alias:          pci:v000014E4d000016AAsv0000103Csd00003102bc*sc*i*<br />
+alias:          pci:v000014E4d0000164Csv*sd*bc*sc*i*<br />
+alias:          pci:v000014E4d0000164Asv*sd*bc*sc*i*<br />
+alias:          pci:v000014E4d0000164Asv0000103Csd00003106bc*sc*i*<br />
+alias:          pci:v000014E4d0000164Asv0000103Csd00003101bc*sc*i*<br />
+depends:<br />
+vermagic:       2.6.18 SMP mod_unload gcc-4.1<br />
+parm:           disable_msi:Disable Message Signaled Interrupt (MSI) (int)[&#47;cc]</p>

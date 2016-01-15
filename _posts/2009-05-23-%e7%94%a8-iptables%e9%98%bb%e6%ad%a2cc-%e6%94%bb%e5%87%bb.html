@@ -1,0 +1,62 @@
+---
+layout: post
+status: publish
+published: true
+title: "用 iptables阻止CC 攻击"
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 434
+wordpress_url: http://ninjacn.com/?p=434
+date: '2009-05-23 11:35:23 +0800'
+date_gmt: '2009-05-23 03:35:23 +0800'
+categories:
+- System
+tags:
+- iptables
+- "攻击"
+- "阻止"
+comments: []
+---
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">我们可以使用 iptables 来在一定程度上实现 黑洞 抗 CC （连接耗尽）攻击的能力，<&#47;span><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">详细配置如下：<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;<&#47;span><&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">1. 系统要求：<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;&nbsp; <&#47;span>1)LINUX 内核版本：2.6.9-42 ELsmp 或 2.6.9-55 ELsmp<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;&nbsp;&nbsp;&nbsp; <&#47;span>（其它内核版本需要重新编译内核，比较麻烦，但是也是可以实现的）<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;&nbsp; <&#47;span>2)iptables 版本：1.3.7<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt 30pt; text-indent: -30pt; text-align: left; mso-char-indent-count: -3.0; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">2. 安装 iptables 1.3.7（<a href="http:&#47;&#47;www.netfilter.org&#47;projects&#47;iptables&#47;files&#47;iptables"><span style="color: #000000;">[url]http:&#47;&#47;www.netfilter.org&#47;projects&#47;iptables&#47;files&#47;iptables[&#47;url]<&#47;span><&#47;a>-<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt 30pt; text-indent: -30pt; text-align: left; mso-char-indent-count: -3.0; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <&#47;span><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">1.3.7.tar.bz2） <&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt 30pt; text-indent: -30pt; text-align: left; mso-char-indent-count: -3.0; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;&nbsp; <&#47;span>和跟系统内核版本对应的内核模块 kernel-smp-modules-connlimit（[url]ftp:&#47;&#47;ftp.pslib.cz&#47;pub&#47;users&#47;Milan.Kerslager&#47;RHEL-4&#47;stable&#47;[&#47;url]）<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">3. 配置相应的 iptables 规则，示例如下：<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;&nbsp;&nbsp; <&#47;span>1) 控制单个 IP 的最大并发连接数<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt 40pt; text-indent: -40pt; text-align: left; mso-char-indent-count: -4.0; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <&#47;span>iptables -I INPUT -p tcp --dport 80 -m connlimit \<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt 40pt; text-indent: -40pt; text-align: left; mso-char-indent-count: -4.0; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --connlimit-above 50 -j REJECT<span style="mso-spacerun: yes;">&nbsp; <&#47;span><&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt 40pt; text-indent: -40pt; text-align: left; mso-char-indent-count: -4.0; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<&#47;span># 允许单个 IP 的最大连接数为 30<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;&nbsp;&nbsp; <&#47;span>2）控制单个 IP 在一定的时间（比如60秒）内允许新建立的连接数<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <&#47;span>iptables -A INPUT -p tcp --dport 80 -m recent&nbsp;&nbsp; \<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --name BAD_HTTP_ACCESS <&#47;span><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">--update --seconds 60 \<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --hitcount 30 -j REJECT<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;&nbsp; <&#47;span><span style="mso-spacerun: yes;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<&#47;span>iptables -A INPUT -p tcp --dport 80 -m recent \<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --name BAD_HTTP_ACCESS --set -j ACCEPT<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <&#47;span># 单个 IP 在 60 秒内只允许最多新建 30 个连接<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">4. 验证：1）工具： flood_connect.c （用来模拟攻击)<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <&#47;span>2）查看效果：<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <&#47;span>使用 watch 'netstat -an | grep :21 | \<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; grep <模拟攻击客户机的 IP> | wc -l' <&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-indent: 85pt; text-align: left; mso-char-indent-count: 8.5; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">实时查看模拟攻击客户机建立起来的连接数，<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <&#47;span>使用 watch 'iptables -L -n -v | \<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; grep <模拟攻击客户机的 IP>' 查看模拟攻击<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 客<&#47;span><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">户机被 DROP 的数据包数<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">5. Good luck !<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">&nbsp;<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">&nbsp;<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">注意：为了增强iptables防止 CC 攻击的能力，最好调整一下 ipt_recent <&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;">的参数：<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"># cat &#47;etc&#47;modprobe.conf<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-tab-count: 1;">&nbsp; <&#47;span>options ipt_recent ip_list_tot=1000 ip_pkt_list_tot=60<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"><span style="mso-spacerun: yes;">&nbsp; <&#47;span># 记录1000个IP地址，每个地址记录60个数据包<&#47;span><&#47;div></p>
+<div class="MsoNormal" style="margin: 0cm 0cm 0pt; text-align: left; mso-layout-grid-align: none;"><span style="font-size: 10pt; font-family: 宋体; mso-font-kerning: 0pt;"># modprobe ipt_recent<&#47;span><&#47;div></p>

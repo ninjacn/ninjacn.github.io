@@ -1,0 +1,28 @@
+---
+layout: post
+status: publish
+published: true
+title: find匹配除某一类型文件以外的所有文件，并执行命令
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 826
+wordpress_url: http://ninjacn.com/?p=826
+date: '2009-12-23 12:27:08 +0800'
+date_gmt: '2009-12-23 04:27:08 +0800'
+categories:
+- System
+tags:
+- linux
+- find
+comments: []
+---
+<p>这条命令匹配除PHP以外的所有文件，并赋644权限。<br />
+[cc lang="bash"]<br />
+cd  &#47;<br />
+find &#47;www&#47;test -name "*.[!p][!h][!p]" -exec chmod 644 {} ';'<br />
+[&#47;cc]</p>

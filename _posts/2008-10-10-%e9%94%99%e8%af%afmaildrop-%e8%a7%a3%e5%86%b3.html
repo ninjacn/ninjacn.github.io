@@ -1,0 +1,44 @@
+---
+layout: post
+status: publish
+published: true
+title: "错误maildrop--解决"
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+excerpt: |-
+  错误信息:Jul&nbsp; 8 11:33:14 mail postfix&#47;pipe[23644]: 9B2051F2C4:
+
+  to=<<a href="mailto:test1@linuxnotes.cn">test1@linuxnotes.cn<&#47;a>>, relay=maildrop, delay=236800,
+
+  delays=236800&#47;0.07&#47;0&#47;0.08, dsn=4.3.0, status=deferred (temporary
+
+  failure. Command output: &#47;usr&#47;local&#47;bin&#47;maildrop: Unable to create log
+
+  file. )
+wordpress_id: 61
+wordpress_url: http://ninjacn.com/?p=61
+date: '2008-10-10 14:01:45 +0800'
+date_gmt: '2008-10-10 06:01:45 +0800'
+categories:
+- Server
+tags:
+- maildrop
+- Server
+comments: []
+---
+<p>错误信息:Jul&nbsp; 8 11:33:14 mail postfix&#47;pipe[23644]: 9B2051F2C4:</p>
+<p>to=<<a href="mailto:test1@linuxnotes.cn">test1@linuxnotes.cn<&#47;a>>, relay=maildrop, delay=236800,</p>
+<p>delays=236800&#47;0.07&#47;0&#47;0.08, dsn=4.3.0, status=deferred (temporary</p>
+<p>failure. Command output: &#47;usr&#47;local&#47;bin&#47;maildrop: Unable to create log</p>
+<p>file. )<a id="more"></a><a id="more-61"></a><br />
+我查看&#47;etc&#47;maildroprc文件,<br />
+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-<br />
+logfile &ldquo;&#47;var&#47;log&#47;maildrop.log&rdquo;<br />
+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;<br />
+一切正常啊,&#47;var&#47;log&#47;maildrop.log文件权限也没有问题,最后,我</p>
+<p>把&#47;etc&#47;maildroprc文件删除以后,邮件可以正常收发了.</p>

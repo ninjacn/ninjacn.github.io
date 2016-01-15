@@ -1,0 +1,25 @@
+---
+layout: post
+status: publish
+published: true
+title: Cannot obtain information for groupid 1000:Success
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 58
+wordpress_url: http://ninjacn.com/?p=58
+date: '2008-10-10 14:00:28 +0800'
+date_gmt: '2008-10-10 06:00:28 +0800'
+categories:
+- Server
+tags:
+- courier-authlib
+- courier-imap
+- Server
+comments: []
+---
+<p>这两天一起在搞POSTFIX,编译了COURIER-AUTHLIB一切正常,后台编译COURIER-IMAP老是提示如标题所示错误,不知到是什么原因,在CONFIG.LOG里面也看不出来哪儿出了问题,郁闷呢!!,昨天网上查了好久也没有也没有找出答案,找出来的也都是错误的解释,哎&hellip;..今天偶尔在GOOGLE GROUP里面看到一则类似这个错误的邮件..指出在AUTHLIB编译时GID和UID那儿只能是用户名或组名,不能为UID和GID,结果我重新按这提示编译COURIER-AUTHLIB,再编译IMAP,正常&hellip;.庆祝一下,浪费我好几天时间&hellip;.</p>

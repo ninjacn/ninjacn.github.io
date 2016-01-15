@@ -1,0 +1,79 @@
+---
+layout: post
+status: publish
+published: true
+title: "安装POSTFIX&ndash;AUTHLIB&ndash;MAILDROP问题集"
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+excerpt: |-
+  Jul&nbsp; 5 12:20:08 pengming postfix&#47;pipe[24708]: 21AA91F39F:
+
+  to=<<a href="mailto:test@tingting.com">test@tingting.com<&#47;a>>, relay=maildrop, delay=250674,
+
+  delays=250673&#47;0.2&#47;0&#47;0.08, dsn=4.3.0, status=deferred (temporary
+
+  failure. Command output: ERR: authdaemon: s_connect() failed:
+
+  Connection refused &#47;usr&#47;local&#47;bin&#47;maildrop: Temporary authentication
+
+  failure. )
+wordpress_id: 52
+wordpress_url: http://ninjacn.com/?p=52
+date: '2008-10-10 13:58:04 +0800'
+date_gmt: '2008-10-10 05:58:04 +0800'
+categories:
+- Server
+tags:
+- maildrop
+- Server
+comments: []
+---
+<p>Jul&nbsp; 5 12:20:08 pengming postfix&#47;pipe[24708]: 21AA91F39F:</p>
+<p>to=<<a href="mailto:test@tingting.com">test@tingting.com<&#47;a>>, relay=maildrop, delay=250674,</p>
+<p>delays=250673&#47;0.2&#47;0&#47;0.08, dsn=4.3.0, status=deferred (temporary</p>
+<p>failure. Command output: ERR: authdaemon: s_connect() failed:</p>
+<p>Connection refused &#47;usr&#47;local&#47;bin&#47;maildrop: Temporary authentication</p>
+<p>failure. )<a id="more"></a><a id="more-52"></a><br />
+运行 service courier-authlib start后,PS AUX查看没有进程存在, 查看日志提</p>
+<p>示找不到LIBLTDL.SO.3找不到,最后查找到库存放在&#47;USR&#47;LOCAL&#47;LIB里面,<br />
+ECHO &ldquo;&#47;USR&#47;LOCAL&#47;LIB&rdquo; >> &#47;ETC&#47;LD.SO.CONF<br />
+LDCONFIG后,又提示<br />
+Jul&nbsp; 5 13:17:14 pengming postfix&#47;pipe[25325]: 5A0E11F3A6:</p>
+<p>to=<<a href="mailto:test@tingting.com">test@tingting.com<&#47;a>>, relay=maildrop, delay=253512,</p>
+<p>delays=253512&#47;0.12&#47;0&#47;0.56, dsn=4.3.0, status=deferred (temporary</p>
+<p>failure. Command output: terminate called after throwing an instance of</p>
+<p>&lsquo;char const*&rsquo; maildrop: signal 0&times;06 )<br />
+测试:<br />
+[root@mail postfix]# authtest -s login <a href="mailto:test@tingting.com">test@tingting.com<&#47;a> test<br />
+Authentication succeeded.</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; Authenticated: <a href="mailto:test@tingting.com">test@tingting.com<&#47;a>&nbsp; (uid 1000, gid 1000)<br />
+&nbsp;&nbsp;&nbsp; Home Directory: &#47;home&#47;domains&#47;tingting.com&#47;test<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Maildir: &#47;home&#47;domains&#47;tingting.com&#47;test&#47;Maildir&#47;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Quota: 5242880S<br />
+Encrypted Password: $1$A3XxsuaL$wOX.sH5V8NdRjVEOODXow.<br />
+Cleartext Password: test<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Options: (none)<br />
+结果显示用户WWW(运行用户)的ID为511,而AUTHTEST显示出UID为1000,..且我在</p>
+<p>WEBMAIL里面设置的邮箱目录为&#47;VAR&#47;DOMAINS&#47;,而AUTHTEST测试</p>
+<p>为&#47;HOME&#47;DOMAINS&#47;,郁闷,,我把AUTHMYSQLRC文件修改了<br />
+MYSQL_HOME_FIELD&nbsp; concat(&rsquo;&#47;var&#47;mailbox&#47;&rsquo;,maildir)<br />
+MYSQL_MAILDIR_FIELD&nbsp; concat(&rsquo;&#47;var&#47;mailbox&#47;&rsquo;,maildir)<br />
+后,重新启动AUTHLIB后,AUTHTEST还是显示在&#47;HOME&#47;DOMAINS目录,不知为何不起作</p>
+<p>用..</p>
+<p>最后修改了AUTHMYSQLRC文件,里面有个SQL语句,修改下,就可以了..(这语句是按照EXTMAIL.ORG官方文档写的,当然环境肯定是EXTMAIL+EXTMAN)<br />
+但虚拟域邮件一直发不出去<br />
+提示:Jul&nbsp; 6 09:18:09 mail postfix&#47;pipe[28145]: C9CBCA011F: to=<<a href="mailto:test1@linuxnotes.cn">test1@linuxnotes.cn<&#47;a>>, relay=maildrop, delay=212968, delays=212968&#47;0.05&#47;0&#47;0.06, dsn=4.3.0, status=deferred (temporary failure. Command output: terminate called after throwing an instance of &lsquo;char const*&rsquo; maildrop: signal 0&times;06 )<br />
+网上查证,说UID和GID不合适&hellip;<br />
+我重新编译COURIER-AUTHLLIB,将用户和组ID都设为1000,最后提示,,<br />
+Cannot obtain information for groupid 505: Success..不解..<br />
+GID505是先前编译这个库时所用的组..<br />
+删除了&#47;USR&#47;LCOAL&#47;VAR&#47;下面的所有文件,这里面存放着COURIER-AUTHLIB的相关信息,当然GID就保存在这儿,编译时它会检测这个地方,导致了上面的问题..<br />
+再次编译..<br />
+&nbsp;.&#47;configure &ndash;with-mysql-libs=&#47;usr&#47;local&#47;mysql&#47;lib&#47;mysql&#47; &ndash;with-mysql-includes=&#47;usr&#47;local&#47;mysql&#47;include&#47;mysql&#47; &ndash;with-mailuser=1000 &ndash;with-mailgroup=1000 &ndash;with-redhat<br />
+这个过程时间有点长,第一次编译以为在循环&hellip;其实不然..<br />
+到此结束,,,可以正常收发信..</p>

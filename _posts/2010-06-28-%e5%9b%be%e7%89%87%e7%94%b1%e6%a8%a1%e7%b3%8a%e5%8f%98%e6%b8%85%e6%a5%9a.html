@@ -1,0 +1,41 @@
+---
+layout: post
+status: publish
+published: true
+title: "图片由模糊变清楚"
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 911
+wordpress_url: http://ninjacn.com/?p=911
+date: '2010-06-28 16:54:35 +0800'
+date_gmt: '2010-06-28 08:54:35 +0800'
+categories:
+- System
+tags: []
+comments: []
+---
+<p>[cc lang="html"]<!DOCTYPE html PUBLIC "-&#47;&#47;W3C&#47;&#47;DTD XHTML 1.0 Transitional&#47;&#47;EN" "http:&#47;&#47;www.w3.org&#47;TR&#47;xhtml1&#47;DTD&#47;xhtml1-transitional.dtd"><br />
+<html xmlns="http:&#47;&#47;www.w3.org&#47;1999&#47;xhtml"><br />
+<head><br />
+<meta http-equiv="Content-Type" content="text&#47;html; charset=utf-8" &#47;><br />
+<title>图片由模糊变清楚<&#47;title><br />
+<&#47;head><br />
+<body><br />
+<img src="smail.jpg" id="myImage"  alt="图片由模糊变清楚" &#47;><&#47;a><br &#47;><br />
+<center><span id="showinfo">正在加载-------<&#47;span><&#47;center><!--这里是一个缩略图的图像，开始是按照源图像大小打开该图像---><br />
+<script type="text&#47;javascript"><br />
+var img = new Image();<br />
+img.src = "big.jpg";<br />
+img.onload = function()<br />
+{&#47;&#47;这里是要加载的源图像，<br />
+document.getElementById('myImage').src = this.src;<br />
+document.getElementById('showinfo').innerHTML='加载完毕,<a href=big.jpg>查看原图<&#47;a>';<br />
+}<br />
+<&#47;script><br />
+<&#47;body><br />
+<&#47;html>[&#47;cc]</p>

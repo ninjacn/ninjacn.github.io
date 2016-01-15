@@ -1,0 +1,43 @@
+---
+layout: post
+status: publish
+published: true
+title: windows nfs客户端访问LINUX NFS服务器
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 850
+wordpress_url: http://ninjacn.com/?p=850
+date: '2010-01-10 15:47:19 +0800'
+date_gmt: '2010-01-10 07:47:19 +0800'
+categories:
+- Server
+tags:
+- linux
+- Windows
+- nfs
+- sfu
+comments: []
+---
+<p>安装LINUX NFS服务器过程不写了，很简单。开启portmap,nfs服务即可。最好将防火墙关闭测试。</p>
+<p>在WINDOWS下访问LINUX NFS服务器需要SFU（Windows Services for UNIX Version 3.5）工具，这个工具现在是免费的<br />
+下载地址：下载地址：http:&#47;&#47;download.microsoft.com&#47;download&#47;a&#47;1&#47;c&#47;a1ca7af1-a6e3-46e7-874a-</p>
+<p>4c5d8c0fb3b7&#47;SFU35SEL_EN.exe</p>
+<p>安装（略，下一步。。。）好之后，执行程序菜单：控制面板--》管理工具--》services for unix administratoion</p>
+<p>截图如下：<br />
+<a href="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;01&#47;1.png"><img src="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;01&#47;1.png" alt="1" title="1" width="545" height="343" class="alignnone size-full wp-image-851" &#47;><&#47;a></p>
+<p>接下来要做的，就是在网络邻居里面添加一个NFS地址<br />
+网络邻居--》整个网络--》NFS NETWORKS 右击添加一个LAN,截图如下：<br />
+<a href="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;01&#47;nfs.JPG"><img src="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;01&#47;nfs.JPG" alt="nfs" title="nfs" width="336" height="307" class="alignnone size-full wp-image-852" &#47;><&#47;a><br />
+添加地址：<br />
+<a href="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;01&#47;nfs0.jpg"><img src="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;01&#47;nfs0.jpg" alt="nfs0" title="nfs0" width="385" height="282" class="alignnone size-full wp-image-853" &#47;><&#47;a><br />
+添加好之后，正常情况下就可以看到NFS服务器的地址了，右击看到的NFS目录，映射至本机目录即可。</p>
+<p>以上步骤之后，即可正常查看文件，但如需要读写权限可能还得添加user map.</p>
+<p>截图如下：<br />
+<a href="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;01&#47;nfs3.png"><img src="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;01&#47;nfs3.png" alt="nfs3" title="nfs3" width="552" height="374" class="alignnone size-full wp-image-854" &#47;><&#47;a></p>
+<p><a href="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;01&#47;nfs4.png"><img src="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;01&#47;nfs4.png" alt="nfs4" title="nfs4" width="682" height="536" class="alignnone size-full wp-image-855" &#47;><&#47;a></p>
+<p><a href="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;01&#47;nfs5.png"><img src="http:&#47;&#47;ninjacn.com&#47;wp-content&#47;uploads&#47;2010&#47;01&#47;nfs5.png" alt="nfs5" title="nfs5" width="393" height="241" class="alignnone size-full wp-image-856" &#47;><&#47;a></p>

@@ -1,0 +1,27 @@
+---
+layout: post
+status: publish
+published: true
+title: cacti不能出图？
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+wordpress_id: 735
+wordpress_url: http://ninjacn.com/?p=735
+date: '2009-09-23 17:46:20 +0800'
+date_gmt: '2009-09-23 09:46:20 +0800'
+categories:
+- System
+tags: []
+comments: []
+---
+<p>cacti自从搭建好从来没有出现过问题，今天却在同一个时间所有机器的图形都不能正常显示。</p>
+<p>LOG显示 ：<br />
+POLLER: Poller[0] Maximum runtime of 298 seconds exceeded. Exiting.</p>
+<p>执行命令： &#47;opt&#47;php&#47;bin&#47;php &#47;web&#47;cacti&#47;poller.php<br />
+PHP Warning:  exec() has been disabled for security reasons in &#47;web&#47;cacti&#47;lib&#47;poller.php on line 126<br />
+才知道为了安全将exec功能禁止了，重新关闭就OK了</p>

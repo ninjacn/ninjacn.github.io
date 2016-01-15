@@ -1,0 +1,54 @@
+---
+layout: post
+status: publish
+published: true
+title: "&#47;usr&#47;bin&#47;ld: cannot find -lmysqlclient_r"
+author:
+  display_name: Ninjacn
+  login: admin
+  email: x@ninjacn.com
+  url: ''
+author_login: admin
+author_email: x@ninjacn.com
+excerpt: |-
+  今天在家里电脑准备安装django环境，当然肯定用mysql数据库了。PYTHON要操作MYSQL，必须得安装扩展名--mysql-python,(mysql-python-1.2.2).在安装期间提示标题所写（&#47;usr&#47;bin&#47;ld: cannot find -lmysqlclient_r），
+
+  执行以下命令：
+
+  echo "&#47;usr&#47;local&#47;mysql&#47;lib&#47;mysql" >> &#47;etc&#47;ld.so.conf(我的环境是centos 5)
+
+  ldconfig，执行以后还是提示以上错误。
+wordpress_id: 211
+wordpress_url: http://ninjacn.com/?p=211
+date: '2008-11-25 22:48:04 +0800'
+date_gmt: '2008-11-25 14:48:04 +0800'
+categories:
+- System
+tags:
+- mysqlclient_r
+- python
+- DB
+comments:
+- id: 21
+  author: home loan
+  author_email: home_loan1404@yahoo.com
+  author_url: http://w2zq.com/sys/homeloan/
+  date: '2009-01-31 06:02:09 +0800'
+  date_gmt: '2009-01-30 22:02:09 +0800'
+  content: Lovely. Great site.
+---
+<p>今天在家里电脑准备安装django环境，当然肯定用mysql数据库了。PYTHON要操作MYSQL，必须得安装扩展名--mysql-python,(mysql-python-1.2.2).在安装期间提示标题所写（&#47;usr&#47;bin&#47;ld: cannot find -lmysqlclient_r），</p>
+<p>执行以下命令：</p>
+<p>echo "&#47;usr&#47;local&#47;mysql&#47;lib&#47;mysql" >> &#47;etc&#47;ld.so.conf(我的环境是centos 5)</p>
+<p>ldconfig，执行以后还是提示以上错误。<a id="more"></a><a id="more-211"></a></p>
+<p>-----------------------</p>
+<p>后来看来一下README,原文在下面</p>
+<p>-------------------</p>
+<p>threadsafe<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; thread-safe client library (libmysqlclient_r) if True (default);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; otherwise use non-thread-safe (libmysqlclient). You should<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; always use the thread-safe library if you have the option;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; otherwise you *may* have problems.</p>
+<p>---------------------------------</p>
+<p>得知得修改site.cfg,将thread-safe设为false,一切OK!</p>
+<p>python setup.py install</p>

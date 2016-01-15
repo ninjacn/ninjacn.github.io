@@ -3,12 +3,12 @@
     <div class="row">
       <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
         <ul class="list-inline text-center footer-links">
-          {% if site.author.facebook and site.footer-links-active.facebook %}
+          {% if site.author.weibo and site.footer-links-active.weibo %}
           <li>
-            <a href="https://www.facebook.com/{{ site.author.facebook }}" title="Facebook">
+            <a href="https://weibo.com/{{ site.author.weibo }}" title="weibo">
               <span class="fa-stack fa-lg">
                 <i class="fa fa-circle fa-stack-2x"></i>
-                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
               </span>
             </a>
           </li>
@@ -19,6 +19,16 @@
               <span class="fa-stack fa-lg">
                 <i class="fa fa-circle fa-stack-2x"></i>
                 <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          {% endif %}
+          {% if site.author.facebook and site.footer-links-active.facebook %}
+          <li>
+            <a href="https://www.facebook.com/{{ site.author.facebook }}" title="Facebook">
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
               </span>
             </a>
           </li>
