@@ -11,44 +11,25 @@
   <meta name="description" content="{{ page.subtitle }}">
   {% endif %}
 
+  <style>
+    .right-bottom .github-fork-ribbon {
+        background-color: #090;
+    }
+  </style>
+
   <link rel="alternate" type="application/rss+xml" title="{{ site.title }} - {{ site.description }}" href="{{ site.baseurl }}/feed.xml" />
 
-  {% if page.common-ext-css %}
-    {% for css in page.common-ext-css %}
-      <link rel="stylesheet" href="{{ css }}" />
-    {% endfor %}
-  {% endif %}  
-  
-  {% if page.common-css %}
-    {% for css in page.common-css %}
-      <link rel="stylesheet" href="{{ css | prepend: site.baseurl | replace: '//', '/' }}" />
-    {% endfor %}
-  {% endif %}
-  
-  {% if page.common-googlefonts %}
-    {% for font in page.common-googlefonts %}
-	  <link rel="stylesheet" href="//fonts.useso.com/css?family={{ font }}" />
-    {% endfor %}
-  {% endif %}
+ <link rel="stylesheet" href="/css/gh-fork-ribbon.min.css" />
+<!--[if lt IE 9]>
+  <link rel="stylesheet" href="/css/gh-fork-ribbon.ie.min.css" />
+<![endif]-->
 
-  {% if page.ext-css %}
-    {% for css in page.ext-css %}
-      <link rel="stylesheet" href="{{ css }}" />
-    {% endfor %}
-  {% endif %}  
-  
-  {% if page.css %}
-    {% for css in page.css %}
-      <link rel="stylesheet" href="{{ css | prepend: site.baseurl | replace: '//', '/' }}" />
-    {% endfor %}
-  {% endif %}
-  
-  {% if page.googlefonts %}
-    {% for font in page.googlefonts %}
-	  <link rel="stylesheet" href="//fonts.useso.com/css?family={{ font }}" />
-    {% endfor %}
-  {% endif %}
-  
+<link rel="stylesheet" href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="//fonts.useso.com/css?family=Lora:400,700,400italic,700italic" />
+<link rel="stylesheet" href="//fonts.useso.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+
   <!-- Facebook OpenGraph tags -->
   <meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}" />
   <meta property="og:type" content="website" />
