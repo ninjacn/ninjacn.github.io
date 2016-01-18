@@ -22,7 +22,7 @@ subtitle: 最可怕的敌人，就是没有坚强的信念
     </p>
   
     <div class="post-entry">
-      {{ post.content | truncatewords: 50 | strip_html | xml_escape}}
+      {{ post.excerpt | strip_html | xml_escape}}
 	  <a href="{{ post.url | prepend: site.baseurl }}" class="post-read-more">[Read&nbsp;More]</a>
     </div>
   
