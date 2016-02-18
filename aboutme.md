@@ -4,6 +4,8 @@ title: 关于我
 subtitle: 最可怕的敌人，就是没有坚强的信念
 ---
 
+<img src="/img/ninjacn_photo.jpg" alt="头像" class="img-circle">
+
 ## 简要说明
 
 地点：中国 • 北京
