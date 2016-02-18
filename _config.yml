@@ -73,7 +73,7 @@ disqus: "ninjacn"
 # Output options (more information on Jekyll's site)
 timezone: "Asia/Shanghai"
 markdown: kramdown
-highlighter: pygments
+highlighter: rouge 
 permalink: /:year-:month-:day-:title
 paginate: 5
 
