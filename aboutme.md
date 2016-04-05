@@ -35,6 +35,7 @@ Email: x#ninjacn.com(# -> @)
 [PHP](http://php.net)
 [Yii](http://www.yiiframework.com/)
 [CodeIgniter](https://ellislab.com/codeigniter)
+[Laravel](https://laravel.com/)
 
 [Python](https://www.python.org)
 
