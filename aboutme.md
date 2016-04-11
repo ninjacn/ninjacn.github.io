@@ -4,7 +4,7 @@ title: 关于我
 subtitle: 最可怕的敌人，就是没有坚强的信念
 ---
 
-<img src="/static/img/ninjacn_photo.jpg" alt="头像" class="img-circle">
+<img src="/static/img/ninjacn_photo.jpg" alt="头像" class="img-circle" style="width:150px">
 
 ## 简要说明
 
