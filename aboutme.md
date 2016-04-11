@@ -6,6 +6,7 @@ subtitle: 最可怕的敌人，就是没有坚强的信念
 
 <img src="/static/img/ninjacn_photo.jpg" alt="头像" class="img-circle" style="width:150px">
 
+
 ## 简要说明
 
 地点：中国 • 北京
@@ -16,6 +17,7 @@ Email: x#ninjacn.com(# -> @)
 
 
 ## 工作经历
+一米鲜-运维负责人（now）
 
 北京推荐电子商务有限公司-技术总监
 
