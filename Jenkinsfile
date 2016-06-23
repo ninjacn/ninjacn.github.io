@@ -1,7 +1,7 @@
 #!groovy
 
 node {
-    def webRoot = "/www1/"
+    def webRoot = "/www/"
 
     stage 'Checkout code'
     checkout scm
