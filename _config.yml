@@ -99,7 +99,6 @@ exclude:
   - LICENSE
   - README.md
   - CNAME
-  - Vagrantfile
 
 # prose.io config
 prose:
@@ -150,5 +149,4 @@ prose:
 # 2fc73a3a967e97599c9763d05e564189
 #
 gems:
-  - jekyll-sitemap
   - jekyll-paginate
