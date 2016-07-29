@@ -7,10 +7,10 @@
     <atom:link href="http://ninjacn.com/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
-        <title>bind结合nginx+php实现dns服务器url跳转</title>
+        <title>BIND结合NGINX+PHP实现DNS服务器URL转发</title>
         <description>
           
-          概述 AUTOMATION FOR EVERYONE,这是官方对Ansbile的定位。看字面意思应该很明确了，它就是为了完成系统各种自动化而服务。用它部署应用、管理各类系统，帮助运维人员简化很多复杂场景，提高工作效率。Ansible有收费版和开源版本，我一直用开源的，能满足现在的需求。用ansbile也没几个月，之前用puppet,salt，不能说都比这些好，但ansible的优点还是很多的，不然也不至于redhat会收购吧。 &amp;lt;?php /** * @author ninjacn &amp;lt;x@ninjacn.com&amp;gt; * 根据获取到的主机名获取相应TXT记录,并返回相应信息 */ define('TARGET_SHOW', 0); //显示url define('TARGET_HIDE', 1); //隐藏url $hostname = $_SERVER['HTTP_HOST']; $record = dns_get_record($hostname, DNS_TXT); list($type, $url) = array('', ''); if($record) { if(isset($record[0]['txt'])) { list($type, $url) = explode('|', $record[0]['txt']); } } if(empty($type) &amp;amp;&amp;amp; empty($url)) { exit(110); } if($type ==...
+          前几天在公司分享会偶尔说起DNS,突然提到域名运营商提供的URL转发功能，即将指定的域名转发到相关域名，且可以在地址栏显示或隐藏目标URL。争论了很久，很多同学都认为是DNS服务器自身提供了这个功能。众所周知，DNS服务器只提供域名的解析功能，而URL转发是HTTP范畴，以下详细说明下我自己的实现原理及过程。 原理 大多数域名运营商都会提供URL转发(国内此功能需要备案和审核)功能，分显示和隐藏两种。我们在实现的过程中分两个环节，即DNS和HTTP。一个URL转发记录对应DNS服务器两条记录，分别为A或CNAME记录和TXT记录。A或CNAME记录解析到自己的HTTP服务器，以用于后面处理URL转发,这条记录对用户隐藏。TXT记录是用户在操作界面填写的URL转发目标地址和类型。DNS解析完成之后交由HTTP服务器，可以用任何服务端语言编写。 实现过程 环境说明 操作系统：CentOS 6(Vagrant) DNS服务器：BIND-9.8.2 (yum) HTTP服务端：NGINX+PHP-FPM-5.3 (yum) 测试域名：ninjacn.com DNS服务器 DNS服务器由BIND搭建，通过yum直接安装即可。下面截取主要的配置以供大家理解： 截取/etc/named.conf options { listen-on port 53 { 127.0.0.1; }; directory &quot;/var/named&quot;; }; zone &quot;ninjacn.com&quot; IN { type master; file &quot;ninjacn.com.zone&quot;; }; 截取/var/named/ninjacn.com.zone $TTL 3H @ IN SOA ninjacn.com. root.ninjacn.com. ( 0 ; serial 1D ; refresh...
         </description>
         <pubDate>Thu, 28 Jul 2016 00:00:00 +0800</pubDate>
         <link>http://ninjacn.com/2016-07-28-bind-E7-BB-93-E5-90-88nginx-2Bphp-E5-AE-9E-E7-8E-B0dns-E6-9C-8D-E5-8A-A1-E5-99-A8url-E8-B7-B3-E8-BD-AC</link>

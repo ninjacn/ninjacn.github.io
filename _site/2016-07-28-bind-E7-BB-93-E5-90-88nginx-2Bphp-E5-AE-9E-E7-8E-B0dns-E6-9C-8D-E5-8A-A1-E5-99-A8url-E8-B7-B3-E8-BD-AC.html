@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>BIND结合NGINX+PHP实现DNS服务器URL转发</title>
+
+  <meta name="author" content="Ninjacn" />
+  
+  
+
+  <style>
+    .github-fork-ribbon.right-bottom:before {
+        background-color: #090;
+    }
+  </style>
+
+  <link rel="alternate" type="application/rss+xml" title="Ninjacn's blog - " href="/feed.xml" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.css" />
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.ie.min.css" />
+<![endif]-->
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/static/css/main.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+
+  <!-- Facebook OpenGraph tags -->
+  <meta property="og:title" content="BIND结合NGINX+PHP实现DNS服务器URL转发" />
+  <meta property="og:type" content="website" />
+  
+  
+  <meta property="og:url" content="http://ninjacn.com/2016-07-28-bind-E7-BB-93-E5-90-88nginx-2Bphp-E5-AE-9E-E7-8E-B0dns-E6-9C-8D-E5-8A-A1-E5-99-A8url-E8-B7-B3-E8-BD-AC/" />
+  
+  
+  
+  <meta property="og:image" content="http://ninjacn.com/static/img/avatar-icon.png" />
+  
+
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?6eb7ae0549b3412cffc9adb86fcca8fa";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+  
+</head>
+
+
+  <body>
+  
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="http://ninjacn.com">Ninjacn's blog</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+	    
+	      
+	      
+        <li>
+          
+          
+        	
+        
+
+	      <a href="/">Home</a>
+	      </li>
+	    
+	      
+	      
+        <li>
+          
+          
+        	
+        
+
+	      <a href="/aboutme">About Me</a>
+	      </li>
+	    
+      </ul>
+    </div>
+	
+	
+	<div class="avatar-container">
+	  <div class="avatar-img-border">
+	    <a href="http://ninjacn.com ">
+	      <img class="avatar-img" src="/static/img/avatar-icon.png" />
+		</a>
+	  </div>
+	</div>
+	
+	
+  </div>
+</nav>  
+
+
+    <div role="main" class="container main-content">
+      <header class="header-post">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <div class="post-heading">
+        <h1>BIND结合NGINX+PHP实现DNS服务器URL转发</h1>
+        
+        <span class="post-meta">Posted on July 28, 2016</span>
+      </div>
+     </div>
+  </div>
+</header>
+
+<article>
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+	  <p>前几天在公司分享会偶尔说起DNS,突然提到域名运营商提供的URL转发功能，即将指定的域名转发到相关域名，且可以在地址栏显示或隐藏目标URL。争论了很久，很多同学都认为是DNS服务器自身提供了这个功能。众所周知，DNS服务器只提供域名的解析功能，而URL转发是HTTP范畴，以下详细说明下我自己的实现原理及过程。</p>
+
+<h1 id="section">原理</h1>
+<p>大多数域名运营商都会提供URL转发(国内此功能需要备案和审核)功能，分显示和隐藏两种。我们在实现的过程中分两个环节，即DNS和HTTP。一个URL转发记录对应DNS服务器两条记录，分别为A或CNAME记录和TXT记录。A或CNAME记录解析到自己的HTTP服务器，以用于后面处理URL转发,这条记录对用户隐藏。TXT记录是用户在操作界面填写的URL转发目标地址和类型。DNS解析完成之后交由HTTP服务器，可以用任何服务端语言编写。</p>
+
+<!--more-->
+
+<h1 id="section-1">实现过程</h1>
+
+<h2 id="section-2">环境说明</h2>
+<ul>
+  <li>操作系统：CentOS 6(Vagrant)</li>
+  <li>DNS服务器：BIND-9.8.2 (yum)</li>
+  <li>HTTP服务端：NGINX+PHP-FPM-5.3 (yum)</li>
+  <li>测试域名：ninjacn.com</li>
+</ul>
+
+<h2 id="dns">DNS服务器</h2>
+
+<p>DNS服务器由BIND搭建，通过yum直接安装即可。下面截取主要的配置以供大家理解：</p>
+
+<h3 id="etcnamedconf">截取/etc/named.conf</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">options <span class="o">{</span>
+        listen-on port 53 <span class="o">{</span> 127.0.0.1; <span class="o">}</span>;
+        directory       <span class="s2">"/var/named"</span>;
+<span class="o">}</span>;
+zone <span class="s2">"ninjacn.com"</span> IN <span class="o">{</span>
+        <span class="nb">type </span>master;
+        file <span class="s2">"ninjacn.com.zone"</span>;
+<span class="o">}</span>;</code></pre></figure>
+
+<h3 id="varnamedninjacncomzone">截取/var/named/ninjacn.com.zone</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$TTL</span> 3H
+@	IN SOA	ninjacn.com. root.ninjacn.com. <span class="o">(</span>
+					0	; serial
+					1D	; refresh
+					1H	; retry
+					1W	; expire
+					3H <span class="o">)</span>	; minimum
+	NS	@
+	A	127.0.0.1
+u0	A	127.0.0.1
+u1	A	127.0.0.1
+u0	TXT	0|http://www.baidu.com/0.html
+u1	TXT	1|http://www.baidu.com/1.html</code></pre></figure>
+
+<p>共解析2条URL转发（u0和u1），它们的A记录都对应自己的HTTP服务器,TXT记录对应真实的URL转发目标地址信息，TXT记录由2部分组成，由<code class="highlighter-rouge">|</code>分隔，左边部分为URL类型（显示或隐藏），右边部分为真正的目标地址。</p>
+
+<h2 id="http">HTTP服务端</h2>
+
+<p>浏览器发起相关域名的请求之后，我们自己的服务器(DNS服务器A记录)会处理这个请求。服务端接受请求后会根据主机头向DNS服务器查询相应的TXT记录，获取到DNS记录之后根据类型(0代表显示URL，1代表隐藏URL)返回HTTP响应信息。</p>
+
+<ul>
+  <li>当类型为0时，HTTP服务端返回301或302状态码，响应头的Location是具体的URL目标地址。</li>
+  <li>当类型为1时，HTTP服务端返回包含iframe的HTML信息。iframe的src属性为具体的URL目标地址。</li>
+</ul>
+
+<p>具体实现看以下PHP代码。</p>
+
+<h3 id="nginx">Nginx配置文件</h3>
+
+<p>泛域名配置,所有请求都会由此server块处理。</p>
+
+<figure class="highlight"><pre><code class="language-nginx" data-lang="nginx"><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">listen</span>       <span class="mi">80</span><span class="p">;</span>
+    <span class="kn">server_name</span>  <span class="s">_</span><span class="p">;</span>
+
+    <span class="kn">location</span> <span class="n">/</span> <span class="p">{</span>
+        <span class="kn">root</span>   <span class="n">/usr/share/nginx/html</span><span class="p">;</span>
+        <span class="kn">index</span>  <span class="s">index.php</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kn">location</span> <span class="p">~</span> <span class="sr">\.php$</span> <span class="p">{</span>
+        <span class="kn">fastcgi_pass</span>   <span class="nf">127.0.0.1</span><span class="p">:</span><span class="mi">9000</span><span class="p">;</span>
+        <span class="kn">fastcgi_index</span>  <span class="s">index.php</span><span class="p">;</span>
+        <span class="kn">fastcgi_param</span>  <span class="s">SCRIPT_FILENAME</span>  <span class="n">/usr/share/nginx/html</span><span class="nv">$fastcgi_script_name</span><span class="p">;</span>
+        <span class="kn">include</span>        <span class="s">fastcgi_params</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<h3 id="php">PHP实现转发</h3>
+
+<figure class="highlight"><pre><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
+<span class="sd">/**
+ * @author ninjacn &lt;x@ninjacn.com&gt;
+ * 根据获取到的主机名获取相应TXT记录,并返回相应信息
+ */</span>
+
+<span class="nb">define</span><span class="p">(</span><span class="s1">'TARGET_SHOW'</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span> <span class="c1">//显示url
+</span><span class="nb">define</span><span class="p">(</span><span class="s1">'TARGET_HIDE'</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span> <span class="c1">//隐藏url
+</span>
+<span class="nv">$hostname</span> <span class="o">=</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">'HTTP_HOST'</span><span class="p">];</span>
+<span class="nv">$record</span> <span class="o">=</span> <span class="nb">dns_get_record</span><span class="p">(</span><span class="nv">$hostname</span><span class="p">,</span> <span class="nx">DNS_TXT</span><span class="p">);</span>
+
+<span class="k">list</span><span class="p">(</span><span class="nv">$type</span><span class="p">,</span> <span class="nv">$url</span><span class="p">)</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s1">''</span><span class="p">,</span> <span class="s1">''</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span><span class="nv">$record</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$record</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'txt'</span><span class="p">]))</span> <span class="p">{</span>
+	<span class="k">list</span><span class="p">(</span><span class="nv">$type</span><span class="p">,</span> <span class="nv">$url</span><span class="p">)</span> <span class="o">=</span> <span class="nb">explode</span><span class="p">(</span><span class="s1">'|'</span><span class="p">,</span> <span class="nv">$record</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'txt'</span><span class="p">]);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">if</span><span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$type</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="k">empty</span><span class="p">(</span><span class="nv">$url</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">exit</span><span class="p">(</span><span class="mi">110</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span><span class="p">(</span><span class="nv">$type</span> <span class="o">==</span> <span class="nx">TARGET_HIDE</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">header</span><span class="p">(</span><span class="s1">'Location: '</span><span class="o">.</span><span class="nv">$url</span><span class="p">);</span>
+<span class="p">}</span> <span class="k">elseif</span> <span class="p">(</span><span class="nv">$type</span> <span class="o">==</span> <span class="nx">TARGET_SHOW</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$html</span> <span class="o">=</span> <span class="s2">"&lt;iframe src='"</span><span class="o">.</span><span class="nv">$url</span><span class="o">.</span><span class="s2">"'&gt;&lt;/iframe&gt;"</span><span class="p">;</span>
+    <span class="k">echo</span> <span class="nv">$html</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<h1 id="section-3">测试</h1>
+
+<h2 id="url---u0ninjacncom">显示url - u0.ninjacn.com</h2>
+
+<p>HTTP状态码为200，不做转发处理，真正的网页地址在iframe的src属性指定。</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@localhost ~]# curl -i u0.ninjacn.com
+HTTP/1.1 200 OK
+Server: nginx/1.10.1
+Date: Thu, 28 Jul 2016 19:31:40 GMT
+Content-Type: text/html
+Transfer-Encoding: chunked
+Connection: keep-alive
+X-Powered-By: PHP/5.3.3
+
+&lt;iframe <span class="nv">src</span><span class="o">=</span><span class="s1">'http://www.baidu.com/0.html'</span>&gt;&lt;/iframe&gt;</code></pre></figure>
+
+<h2 id="url---u1ninjacncom">隐藏URL - u1.ninjacn.com</h2>
+
+<p>HTTP状态码为302,目标地址在响应头的Location属性。</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@localhost ~]# curl -i u1.ninjacn.com
+HTTP/1.1 302 Moved Temporarily
+Server: nginx/1.10.1
+Date: Thu, 28 Jul 2016 19:36:59 GMT
+Content-Type: text/html
+Transfer-Encoding: chunked
+Connection: keep-alive
+X-Powered-By: PHP/5.3.3
+Location: http://www.baidu.com/1.html</code></pre></figure>
+
+
+	</div>
+  </div>
+</article>
+
+<div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 text-center">
+        （全文完）
+    </div>
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        本人水平有限,请指正、并请不吝赐教。转载本站文章请注明作者和出处。
+    </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <ul class="pager blog-pager">
+      
+      <li class="previous">
+        <a href="/2016-01-18-ansible-E5-85-A5-E9-97-A8" data-toggle="tooltip" data-placement="top" title="ansible入门">&larr; Previous Post</a>
+      </li>
+      
+      
+    </ul>
+  </div>
+</div>
+
+
+<div class="row disqus-comments">
+  <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    
+<div class="comments">
+	<div id="disqus_thread"></div>
+	<script type="text/javascript">
+	    var disqus_shortname = 'ninjacn';
+	    // ensure that pages with query string get the same discussion
+            var url_parts = window.location.href.split("?");
+            var disqus_url = url_parts[0];	    
+	    (function() {
+	        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	    })();
+	</script>
+	<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+
+
+  </div>
+</div>
+
+
+    </div>
+
+    <footer>
+  <div class="container beautiful-jekyll-footer">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          <li>
+            <a href="https://weibo.com/cnming" title="weibo">
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+          
+          <li>
+            <a href="https://github.com/ninjacn" title="GitHub">
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+          
+          <li>
+            <a href="https://www.facebook.com/ninjacn01" title="Facebook">
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+		  
+          <li>
+            <a href="https://twitter.com/ninjacn01" title="Twitter">
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+		  
+		  
+		  
+		  
+		  <li>
+			<a href="/feed.xml" title="RSS">
+			  <span class="fa-stack fa-lg">
+				<i class="fa fa-circle fa-stack-2x"></i>
+				<i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+			  </span>
+			</a>
+		  </li>		
+          		  
+        </ul>
+        <p class="copyright text-muted">
+		  Ninjacn
+		  &nbsp;&bull;&nbsp;
+		  2016
+		  
+		  
+		  &nbsp;&bull;&nbsp;
+		  <a href="http://ninjacn.com">ninjacn.com</a>
+		  
+	    </p>
+	        <!-- Please don't remove this, keep my open source work credited :) -->
+		<p class="theme-by text-muted">
+          <a href="http://www.miitbeian.gov.cn/" >京ICP备13023632号-4</a>
+		</p>
+      </div>
+    </div>
+  </div>
+
+<a class="github-fork-ribbon right-bottom fixed" href="https://github.com/ninjacn/ninjacn.github.io" title="Fork me on GitHub">Fork me on GitHub</a>
+
+ <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+ <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</footer>
+
+  
+    
+
+
+
+
+
+
+
+  
+  </body>
+</html>
