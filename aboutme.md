@@ -34,10 +34,12 @@ Email: x#ninjacn.com(# -> @)
 [Ubuntu](http://www.ubuntu.com/)
 
 ### 熟悉的语言或框架
+[Golang](https://golang.org/)
+
 [PHP](http://php.net)
+[Laravel](https://laravel.com/)
 [Yii](http://www.yiiframework.com/)
 [CodeIgniter](https://ellislab.com/codeigniter)
-[Laravel](https://laravel.com/)
 
 [Python](https://www.python.org)
 

@@ -4,7 +4,7 @@
 # baseurl is the website's URL without the hostname
 
 # If you are building a simple GitHub user page (username.github.io) then use these settings:
-url: "http://ninjacn.com"
+url: "https://ninjacn.com"
 domain: "ninjacn.com"
 baseurl: ""
 
@@ -99,6 +99,8 @@ exclude:
   - LICENSE
   - README.md
   - CNAME
+  - vendor
+  - node_modules
 
 # prose.io config
 prose:
