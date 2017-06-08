@@ -101,6 +101,8 @@ exclude:
   - CNAME
   - vendor
   - node_modules
+  - resource
+  - script
 
 # prose.io config
 prose:

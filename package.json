@@ -1,0 +1,25 @@
+{
+  "name": "ninjacn.github.io",
+  "version": "1.0.0",
+  "description": "[![Build Status](https://travis-ci.org/ninjacn/ninjacn.github.io.svg?branch=master)](https://travis-ci.org/ninjacn/ninjacn.github.io)",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "gulp": "^3.9.1",
+    "jekyll": "^3.0.0-beta1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ninjacn/ninjacn.github.io.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ninjacn/ninjacn.github.io/issues"
+  },
+  "homepage": "https://github.com/ninjacn/ninjacn.github.io#readme"
+}
