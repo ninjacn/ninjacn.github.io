@@ -4,6 +4,8 @@
   "description": "[![Build Status](https://travis-ci.org/ninjacn/ninjacn.github.io.svg?branch=master)](https://travis-ci.org/ninjacn/ninjacn.github.io)",
   "main": "gulpfile.js",
   "dependencies": {
+    "jquery": "^3.2",
+    "font-awesome": "^4.7",
     "bootstrap": "^3.3.7",
     "github-fork-ribbon-css": "^0.2.1",
     "gulp": "^3.9.1",
