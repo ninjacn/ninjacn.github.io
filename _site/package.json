@@ -5,6 +5,7 @@
   "main": "gulpfile.js",
   "dependencies": {
     "bootstrap": "^3.3.7",
+    "github-fork-ribbon-css": "^0.2.1",
     "gulp": "^3.9.1",
     "jekyll": "^3.0.0-beta1"
   },
