@@ -133,14 +133,14 @@
     <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
 	  <p>前几天在公司分享会偶尔说起DNS,突然提到域名运营商提供的URL转发功能，即将指定的域名转发到相关域名，且可以在地址栏显示或隐藏目标URL。争论了很久，很多同学都认为是DNS服务器自身提供了这个功能。众所周知，DNS服务器只提供域名的解析功能，而URL转发是HTTP范畴，以下详细说明下我自己的实现原理及过程。</p>
 
-<h1 id="section">原理</h1>
+<h1 id="原理">原理</h1>
 <p>大多数域名运营商都会提供URL转发(国内此功能需要备案和审核)功能，分显示和隐藏两种。我们在实现的过程中分两个环节，即DNS和HTTP。一个URL转发记录对应DNS服务器两条记录，分别为A或CNAME记录和TXT记录。A或CNAME记录解析到自己的HTTP服务器，以用于后面处理URL转发,这条记录对用户隐藏。TXT记录是用户在操作界面填写的URL转发目标地址和类型。DNS解析完成之后交由HTTP服务器，可以用任何服务端语言编写。</p>
 
 <!--more-->
 
-<h1 id="section-1">实现过程</h1>
+<h1 id="实现过程">实现过程</h1>
 
-<h2 id="section-2">环境说明</h2>
+<h2 id="环境说明">环境说明</h2>
 <ul>
   <li>操作系统：CentOS 6(Vagrant)</li>
   <li>DNS服务器：BIND-9.8.2 (yum)</li>
@@ -148,30 +148,30 @@
   <li>测试域名：ninjacn.com</li>
 </ul>
 
-<h2 id="dns">DNS服务器</h2>
+<h2 id="dns服务器">DNS服务器</h2>
 
 <p>DNS服务器由BIND搭建，通过yum直接安装即可。下面截取主要的配置以供大家理解：</p>
 
-<h3 id="etcnamedconf">截取/etc/named.conf</h3>
+<h3 id="截取etcnamedconf">截取/etc/named.conf</h3>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">options <span class="o">{</span>
-        listen-on port 53 <span class="o">{</span> 127.0.0.1; <span class="o">}</span>;
-        directory       <span class="s2">"/var/named"</span>;
-<span class="o">}</span>;
+        listen-on port 53 <span class="o">{</span> 127.0.0.1<span class="p">;</span> <span class="o">}</span><span class="p">;</span>
+        directory       <span class="s2">"/var/named"</span><span class="p">;</span>
+<span class="o">}</span><span class="p">;</span>
 zone <span class="s2">"ninjacn.com"</span> IN <span class="o">{</span>
-        <span class="nb">type </span>master;
-        file <span class="s2">"ninjacn.com.zone"</span>;
-<span class="o">}</span>;</code></pre></figure>
+        <span class="nb">type </span>master<span class="p">;</span>
+        file <span class="s2">"ninjacn.com.zone"</span><span class="p">;</span>
+<span class="o">}</span><span class="p">;</span></code></pre></figure>
 
-<h3 id="varnamedninjacncomzone">截取/var/named/ninjacn.com.zone</h3>
+<h3 id="截取varnamedninjacncomzone">截取/var/named/ninjacn.com.zone</h3>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$TTL</span> 3H
 @	IN SOA	ninjacn.com. root.ninjacn.com. <span class="o">(</span>
-					0	; serial
-					1D	; refresh
-					1H	; retry
-					1W	; expire
-					3H <span class="o">)</span>	; minimum
+					0	<span class="p">;</span> serial
+					1D	<span class="p">;</span> refresh
+					1H	<span class="p">;</span> retry
+					1W	<span class="p">;</span> expire
+					3H <span class="o">)</span>	<span class="p">;</span> minimum
 	NS	@
 	A	127.0.0.1
 u0	A	127.0.0.1
@@ -181,7 +181,7 @@ u1	TXT	1|http://www.baidu.com/1.html</code></pre></figure>
 
 <p>共解析2条URL转发（u0和u1），它们的A记录都对应自己的HTTP服务器,TXT记录对应真实的URL转发目标地址信息，TXT记录由2部分组成，由<code class="highlighter-rouge">|</code>分隔，左边部分为URL类型（显示或隐藏），右边部分为真正的目标地址。</p>
 
-<h2 id="http">HTTP服务端</h2>
+<h2 id="http服务端">HTTP服务端</h2>
 
 <p>浏览器发起相关域名的请求之后，我们自己的服务器(DNS服务器A记录)会处理这个请求。服务端接受请求后会根据主机头向DNS服务器查询相应的TXT记录，获取到DNS记录之后根据类型(0代表显示URL，1代表隐藏URL)返回HTTP响应信息。</p>
 
@@ -192,7 +192,7 @@ u1	TXT	1|http://www.baidu.com/1.html</code></pre></figure>
 
 <p>具体实现看以下PHP代码。</p>
 
-<h3 id="nginx">Nginx配置文件</h3>
+<h3 id="nginx配置文件">Nginx配置文件</h3>
 
 <p>泛域名配置,所有请求都会由此server块处理。</p>
 
@@ -212,7 +212,7 @@ u1	TXT	1|http://www.baidu.com/1.html</code></pre></figure>
     <span class="p">}</span>
 <span class="p">}</span></code></pre></figure>
 
-<h3 id="php">PHP实现转发</h3>
+<h3 id="php实现转发">PHP实现转发</h3>
 
 <figure class="highlight"><pre><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
 <span class="sd">/**
@@ -244,13 +244,13 @@ u1	TXT	1|http://www.baidu.com/1.html</code></pre></figure>
     <span class="k">echo</span> <span class="nv">$html</span><span class="p">;</span>
 <span class="p">}</span></code></pre></figure>
 
-<h1 id="section-3">测试</h1>
+<h1 id="测试">测试</h1>
 
-<h2 id="url---u0ninjacncom">显示url - u0.ninjacn.com</h2>
+<h2 id="显示url---u0ninjacncom">显示url - u0.ninjacn.com</h2>
 
 <p>HTTP状态码为200，不做转发处理，真正的网页地址在iframe的src属性指定。</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@localhost ~]# curl -i u0.ninjacn.com
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@localhost ~]# curl <span class="nt">-i</span> u0.ninjacn.com
 HTTP/1.1 200 OK
 Server: nginx/1.10.1
 Date: Thu, 28 Jul 2016 19:31:40 GMT
@@ -259,13 +259,13 @@ Transfer-Encoding: chunked
 Connection: keep-alive
 X-Powered-By: PHP/5.3.3
 
-&lt;iframe <span class="nv">src</span><span class="o">=</span><span class="s1">'http://www.baidu.com/0.html'</span>&gt;&lt;/iframe&gt;</code></pre></figure>
+&lt;iframe <span class="nv">src</span><span class="o">=</span><span class="s1">'http://www.baidu.com/0.html'</span><span class="o">&gt;</span>&lt;/iframe&gt;</code></pre></figure>
 
-<h2 id="url---u1ninjacncom">隐藏URL - u1.ninjacn.com</h2>
+<h2 id="隐藏url---u1ninjacncom">隐藏URL - u1.ninjacn.com</h2>
 
 <p>HTTP状态码为302,目标地址在响应头的Location属性。</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@localhost ~]# curl -i u1.ninjacn.com
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>root@localhost ~]# curl <span class="nt">-i</span> u1.ninjacn.com
 HTTP/1.1 302 Moved Temporarily
 Server: nginx/1.10.1
 Date: Thu, 28 Jul 2016 19:36:59 GMT

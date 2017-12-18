@@ -57,8 +57,5 @@ Email: x#ninjacn.com(# -> @)
 ## 好站推荐
 [随你玩](http://android.myapp.com/myapp/detail.htm?apkName=com.godiy8.android)
 [随ME网](http://www.godiy8.com)
+[逗逗你](https://doudouni.com)
 [车到哪](http://www.chedaona.com)
-[在线照片合成](http://photo.godiy8.com)
-[闪字制作](http://shanzi.godiy8.com)
-
-
