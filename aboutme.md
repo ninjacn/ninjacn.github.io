@@ -20,8 +20,6 @@ Email: x#ninjacn.com(# -> @)
 
 一米鲜-运维负责人
 
-北京推荐电子商务有限公司-技术总监
-
 小米科技-运维开发工程师
 
 宜搜科技-运维工程师
@@ -43,6 +41,10 @@ Email: x#ninjacn.com(# -> @)
 [CodeIgniter](https://ellislab.com/codeigniter)
 
 [Python](https://www.python.org)
+
+[Android](#)
+
+[Swift](#)
 
 ### 其它
 [Docker](http://www.docker.io/)
