@@ -32,11 +32,11 @@
   <meta property="og:type" content="website" />
   
   
-  <meta property="og:url" content="https://ninjacn.com/2016-07-28-bind-E7-BB-93-E5-90-88nginx-2Bphp-E5-AE-9E-E7-8E-B0dns-E6-9C-8D-E5-8A-A1-E5-99-A8url-E8-B7-B3-E8-BD-AC/" />
+  <meta property="og:url" content="http://localhost:4000/2016-07-28-bind-E7-BB-93-E5-90-88nginx-2Bphp-E5-AE-9E-E7-8E-B0dns-E6-9C-8D-E5-8A-A1-E5-99-A8url-E8-B7-B3-E8-BD-AC/" />
   
   
   
-  <meta property="og:image" content="https://ninjacn.com/static/img/avatar-icon.png" />
+  <meta property="og:image" content="http://localhost:4000/static/img/avatar-icon.png" />
   
 
 	<script>
@@ -70,11 +70,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="https://ninjacn.com">Ninjacn's blog</a>
+      <a class="navbar-brand" href="http://localhost:4000">Ninjacn's blog</a>
     </div>
 
     <div class="collapse navbar-collapse" id="main-navbar">
       <ul class="nav navbar-nav navbar-right">
+
 	    
 	      
 	      
@@ -84,7 +85,18 @@
         	
         
 
-	      <a href="/">Home</a>
+	      <a href="//">Home</a>
+	      </li>
+	    
+	      
+	      
+        <li>
+          
+          
+        	
+        
+
+	      <a href="https://opendeploy.readthedocs.io/">Opendeploy</a>
 	      </li>
 	    
 	      
@@ -104,7 +116,7 @@
 	
 	<div class="avatar-container">
 	  <div class="avatar-img-border">
-	    <a href="https://ninjacn.com ">
+	    <a href="http://localhost:4000 ">
 	      <img class="avatar-img" src="/static/img/avatar-icon.png" />
 		</a>
 	  </div>
@@ -220,9 +232,9 @@ u1	TXT	1|http://www.baidu.com/1.html</code></pre></figure>
  * 根据获取到的主机名获取相应TXT记录,并返回相应信息
  */</span>
 
-<span class="nb">define</span><span class="p">(</span><span class="s1">'TARGET_SHOW'</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span> <span class="c1">//显示url
-</span><span class="nb">define</span><span class="p">(</span><span class="s1">'TARGET_HIDE'</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span> <span class="c1">//隐藏url
-</span>
+<span class="nb">define</span><span class="p">(</span><span class="s1">'TARGET_SHOW'</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span> <span class="c1">//显示url</span>
+<span class="nb">define</span><span class="p">(</span><span class="s1">'TARGET_HIDE'</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span> <span class="c1">//隐藏url</span>
+
 <span class="nv">$hostname</span> <span class="o">=</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">'HTTP_HOST'</span><span class="p">];</span>
 <span class="nv">$record</span> <span class="o">=</span> <span class="nb">dns_get_record</span><span class="p">(</span><span class="nv">$hostname</span><span class="p">,</span> <span class="nx">DNS_TXT</span><span class="p">);</span>
 
@@ -374,11 +386,11 @@ Location: http://www.baidu.com/1.html</code></pre></figure>
         <p class="copyright text-muted">
 		  Ninjacn
 		  &nbsp;&bull;&nbsp;
-		  2018
+		  2019
 		  
 		  
 		  &nbsp;&bull;&nbsp;
-		  <a href="https://ninjacn.com">ninjacn.com</a>
+		  <a href="http://localhost:4000">ninjacn.com</a>
 		  
 	    </p>
 	        <!-- Please don't remove this, keep my open source work credited :) -->

@@ -4,8 +4,8 @@
 # baseurl is the website's URL without the hostname
 
 # If you are building a simple GitHub user page (username.github.io) then use these settings:
-url: "https://ninjacn.com"
-domain: "ninjacn.com"
+url: "https://ninjacn.github.io"
+domain: "ninjacn.github.io"
 baseurl: ""
 
 # If you are building a GitHub project page then use these settings:
@@ -28,9 +28,9 @@ avatar: "/static/img/avatar-icon.png"
 
 # List of links in the navigation bar
 navbar-links:
-  Home: ""
+  Home: "/"
+  Opendeploy: "https://opendeploy.readthedocs.io/"
   About Me: "aboutme"
-#  Author's home: "http://ninjacn.com"
   
 # --- Footer options --- #
 
@@ -59,7 +59,7 @@ footer-links-active:
 
 # How to display the link to the website in the footer
 # Remove this if you don't want a link in the footer
-url-pretty: "ninjacn.com"  # eg. "deanattali.com/beautiful-jekyll"
+url-pretty: "ninjacn.github.io"  # eg. "deanattali.com/beautiful-jekyll"
 
 # --- Misc --- #
 
@@ -67,7 +67,7 @@ url-pretty: "ninjacn.com"  # eg. "deanattali.com/beautiful-jekyll"
  #disqus: "ninjacn"
 
 # Fill in your Google Analytics ID to track your website using GA
-#google_analytics: ""
+google_analytics: ""
 
 # --- Don't need to touch anything below here (but you can if you want) --- #
 
@@ -152,5 +152,5 @@ prose:
 # Beautiful Jekyll / Dean Attali
 # 2fc73a3a967e97599c9763d05e564189
 #
-gems:
+plugins:
   - jekyll-paginate
